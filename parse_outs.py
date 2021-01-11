@@ -22,7 +22,7 @@ def load_obj(name):
 
 def parse_outs(exp_folder, steps, outf):
     step_list = eval(steps)
-    print(step_list)
+    print(0, step_list)
     for step in step_list:
 
         pred_file = os.path.join(exp_folder, 'predictions', f'off_policy_valid-{step}.txt')
@@ -31,6 +31,7 @@ def parse_outs(exp_folder, steps, outf):
         os.makedirs(os.path.join(output_folder, str(step)), exist_ok=True)
         output_file = os.path.join(output_folder, str(step), 'valid-parsed-preds.txt')
 
+        print(111, step, pred_file, evict_file, output_folder, output_file)
         pred_reader = reader(pred_file)
         evict_reader = reader(evict_file)
 
