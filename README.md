@@ -19,7 +19,7 @@ Afterwards, please install OpenAI baselines with
 ## Training models
 To run training, use this command:
 
-```./run_training.sh <DATASET> <DEVICE> <FRACTION> <DAGGER> <RESULT_DIR>```
+```bash run_training.sh <DATASET> <DEVICE> <FRACTION> <DAGGER> <RESULT_DIR>```
 
 where:
 - DATASET - the name of used dataset (do not forget to download all three splits: train, valid, test)
@@ -30,6 +30,6 @@ where:
 
 For example:
 
-```./run_training.sh astar 0 33 True ./results```
+```bash run_training.sh astar 0 33 True ./results```
 
 ## Evaluation of the trained models
