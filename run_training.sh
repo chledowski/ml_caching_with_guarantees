@@ -6,20 +6,20 @@ FRACTION=$3
 DAGGER=$4
 RESULT_DIR=$5
 
+SPLITS="train valid test"
+
 if [ "${FRACTION}" != "1" ]; then
-    WC=($(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv"))
-    NUM_LINES=${WC[0]}
-    echo "${NUM_LINES}"
-    DECREASED_NUM_LINES=$(echo "scale=4; $NUM_LINES*$FRACTION" | bc)
-    echo "${DECREASED_NUM_LINES}"
-    DECREASED_NUM_LINES_INT=${DECREASED_NUM_LINES%.*}
-    echo "${DECREASED_NUM_LINES_INT}"
-    cat "cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" | head -n ${DECREASED_NUM_LINES_INT}
-#    A=$(($FRACTION * $NUM_LINES))
-#    B=$(( $A / 100 ))
-#    echo $B
-#    echo $NUM_LINES
-#    echo $FRACTION
+    for split in $SPLITS; do
+        WC=($(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_${split}.csv"))
+        NUM_LINES=${WC[0]}
+        echo "${NUM_LINES}"
+        DECREASED_NUM_LINES=$(echo "scale=4; $NUM_LINES*$FRACTION" | bc)
+        echo "${DECREASED_NUM_LINES}"
+        DECREASED_NUM_LINES_INT=${DECREASED_NUM_LINES%.*}
+        echo "${DECREASED_NUM_LINES_INT}"
+        head -n "${DECREASED_NUM_LINES_INT}" "cache_replacement/policy_learning/cache/traces/${DATASET}_${split}.csv" \
+         > "cache_replacement/policy_learning/cache/traces/${DATASET}_${split}_${FRACTION}.csv"
+    done
 
 fi
 
