@@ -6,9 +6,8 @@ FRACTION=$3
 DAGGER=$4
 RESULT_DIR=$5
 
-if [ "${FRACTION}" != "100" ]; then
+if [ "${FRACTION}" != "1" ]; then
     WC=($(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv"))
-#    echo $WC
     NUM_LINES=${WC[0]}
     echo $NUM_LINES
 
