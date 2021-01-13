@@ -7,13 +7,12 @@ DAGGER=$4
 RESULT_DIR=$5
 
 if [ "${FRACTION}" != "1" ]; then
-    WC=($(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv"))
+    WC=($(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv"))
     NUM_LINES=${WC[0]}
-    echo $NUM_LINES
-
-#    NUM_LINES=10
-    ans=$(echo "scale=4; $NUM_LINES*$FRACTION" | bc)
-    echo $ans
+    echo "${NUM_LINES}"
+    DECREASED_NUM_LINES=$(echo "scale=4; $NUM_LINES*$FRACTION" | bc)
+    echo "${DECREASED_NUM_LINES}"
+    cat "cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" | head ${DECREASED_NUM_LINES}
 #    A=$(($FRACTION * $NUM_LINES))
 #    B=$(( $A / 100 ))
 #    echo $B
