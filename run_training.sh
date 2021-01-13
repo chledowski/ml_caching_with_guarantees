@@ -7,11 +7,14 @@ DAGGER=$4
 RESULT_DIR=$5
 
 if [ "${FRACTION}" != "100" ]; then
-    NUM_LINES=$(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv")
+    WC=$(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv")
+    echo $WC
+    NUM_LINES=${WC[0]}
     echo $NUM_LINES
+
 #    NUM_LINES=10
-#    ans=$((NUM_LINES * FRACTION))
-#    echo $ans
+    ans=$((NUM_LINES * FRACTION))
+    echo $ans
 #    A=$(($FRACTION * $NUM_LINES))
 #    B=$(( $A / 100 ))
 #    echo $B
