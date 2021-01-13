@@ -12,7 +12,9 @@ if [ "${FRACTION}" != "1" ]; then
     echo "${NUM_LINES}"
     DECREASED_NUM_LINES=$(echo "scale=4; $NUM_LINES*$FRACTION" | bc)
     echo "${DECREASED_NUM_LINES}"
-    cat "cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" | head -n ${DECREASED_NUM_LINES}
+    DECREASED_NUM_LINES_INT=${DECREASED_NUM_LINES%.*}
+    echo "${DECREASED_NUM_LINES_INT}"
+    cat "cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" | head -n ${DECREASED_NUM_LINES_INT}
 #    A=$(($FRACTION * $NUM_LINES))
 #    B=$(( $A / 100 ))
 #    echo $B
