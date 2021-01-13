@@ -12,7 +12,7 @@ if [ "${FRACTION}" != "1" ]; then
     echo $NUM_LINES
 
 #    NUM_LINES=10
-    ans=($NUM_LINES * $FRACTION | bc )
+    ans=$(echo "scale=4; $NUM_LINES*$FRACTION" | bc)
     echo $ans
 #    A=$(($FRACTION * $NUM_LINES))
 #    B=$(( $A / 100 ))
