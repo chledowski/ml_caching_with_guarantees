@@ -57,6 +57,10 @@ from cache_replacement.policy_learning.common import utils as common_utils
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string(
+    "load_checkpoint",
+    "None",
+    "Path to the checkpoint.")
+flags.DEFINE_string(
     "train_memtrace",
     "cache_replacement/policy_learning/cache/traces/omnetpp_train.csv",
     "Path to the training memory trace.")
@@ -440,6 +444,10 @@ def main(_):
   logging.info("Device: %s", device)
 
   policy_model = model.EvictionPolicyModel.from_config(model_config).to(device)
+  if FLAGS.load_checkpoint != "None":
+      print(f"Loading checkpoint from {FLAGS.load_checkpoint}.")
+      policy_model.load_state_dict(torch.load(FLAGS.load_checkpoint))
+
   optimizer = optim.Adam(policy_model.parameters(), lr=model_config.get("lr"))
 
   step = 0
@@ -525,12 +533,13 @@ def main(_):
             evaluate_helper(len(oracle_valid_data), "_full")
 
           if step % FLAGS.save_freq == 0 and step != 0:
-            save_path = os.path.join(checkpoints_dir, "{}.ckpt".format(step))
-            with open(save_path, "wb") as save_file:
-              checkpoint_buffer = io.BytesIO()
-              torch.save(policy_model.state_dict(), checkpoint_buffer)
-              logging.info("Saving model checkpoint to: %s", save_path)
-              save_file.write(checkpoint_buffer.getvalue())
+              torch.save(policy_model.state_dict(), os.path.join(checkpoints_dir, "{}.ckpt".format(step)))
+            # save_path = os.path.join(checkpoints_dir, "{}.ckpt".format(step))
+            # with open(save_path, "wb") as save_file:
+            #   checkpoint_buffer = io.BytesIO()
+            #   torch.save(policy_model.state_dict(), checkpoint_buffer)
+            #   logging.info("Saving model checkpoint to: %s", save_path)
+            #   save_file.write(checkpoint_buffer.getvalue())
 
           optimizer.zero_grad()
           losses = policy_model.loss(

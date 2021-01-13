@@ -24,7 +24,7 @@ To run training, use this command:
 where:
 - DATASET - the name of used dataset (do not forget to download all three splits: train, valid, test)
 - DEVICE - the GPU device to train on
-- FRACTION - the fratcion of the train set to use (in \% from 1 to 100)
+- FRACTION - the fratcion of the train set to use (eg. `1`, `0.01`)
 - DAGGER (`True` or `False`) - whether to use DAgger
 - RESULT_DIR - data folder
 
