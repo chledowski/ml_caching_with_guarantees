@@ -10,11 +10,11 @@ if [ "${FRACTION}" != "100" ]; then
     NUM_LINES=$(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv")
     ans=`expr $num1 \* $num2`
     echo $ans
-    A=$(($FRACTION * $NUM_LINES))
-    B=$(( $A / 100 ))
-    echo $B
-    echo $NUM_LINES
-    echo $FRACTION
+#    A=$(($FRACTION * $NUM_LINES))
+#    B=$(( $A / 100 ))
+#    echo $B
+#    echo $NUM_LINES
+#    echo $FRACTION
 
 fi
 
