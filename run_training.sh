@@ -8,7 +8,7 @@ RESULT_DIR=$5
 
 if [ "${FRACTION}" != "100" ]; then
     NUM_LINES=$(wc -l "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv")
-#    var=$(echo "scale=2;${NUM_LINES}*${FRACTION}" |bc)
+    var=$(echo "scale=2;${NUM_LINES}*${FRACTION}" |bc)
 #    echo $var
 #    echo $NUM_LINES
 #    echo $FRACTION
