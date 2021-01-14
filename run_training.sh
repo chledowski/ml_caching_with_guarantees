@@ -108,8 +108,8 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
             --total_steps=1
 
 CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="/local/data/chledows/oa" \
-            --experiment_name="astar__dagger=true__fraction=0.1_eval_test" \
+            --experiment_base_dir="/local/data/chledows/oa/old" \
+            --experiment_name="astar__dagger=false__fraction=0.1_eval_test" \
             --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
             --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
             --dagger_schedule_bindings="update_freq=100000000000" \
@@ -118,7 +118,7 @@ CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache_model.
             --dagger_schedule_bindings="num_steps=1" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
-            --load_checkpoint="/local/data/chledows/oa/astar__dagger=true__fraction=0.1/checkpoints/20000.ckpt" \
+            --load_checkpoint="/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt" \
             --total_steps=1
 
 

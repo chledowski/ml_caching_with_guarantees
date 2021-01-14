@@ -166,12 +166,12 @@ class DynamicVocabEmbedder(Embedder):
     state_dict[prefix + "input_to_index"] = self._input_to_index
     return state_dict
 
-  def _load_from_state_dict(self, state_dict, prefix, strict, missing_keys,
-                            unexpected_keys, error_msgs):
-    self._vocab_size = state_dict.pop(prefix + "vocab_size")
-    self._input_to_index = state_dict.pop(prefix + "input_to_index")
-    super()._load_from_state_dict(
-        state_dict, prefix, strict, missing_keys, unexpected_keys, error_msgs)
+  # def _load_from_state_dict(self, state_dict, prefix, strict, missing_keys,
+  #                           unexpected_keys, error_msgs):
+  #   self._vocab_size = state_dict.pop(prefix + "vocab_size")
+  #   self._input_to_index = state_dict.pop(prefix + "input_to_index")
+  #   super()._load_from_state_dict(
+  #       state_dict, prefix, strict, missing_keys, unexpected_keys, error_msgs)
 
 
 class PositionalEmbedder(Embedder):
