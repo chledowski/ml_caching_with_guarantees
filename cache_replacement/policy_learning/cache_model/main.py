@@ -537,13 +537,13 @@ def main(_):
             evaluate_helper(len(oracle_valid_data), "_full")
 
           if step % FLAGS.save_freq == 0 and step != 0:
-              torch.save(policy_model.state_dict(), os.path.join(checkpoints_dir, "{}.ckpt".format(step)))
-            # save_path = os.path.join(checkpoints_dir, "{}.ckpt".format(step))
-            # with open(save_path, "wb") as save_file:
-            #   checkpoint_buffer = io.BytesIO()
-            #   torch.save(policy_model.state_dict(), checkpoint_buffer)
-            #   logging.info("Saving model checkpoint to: %s", save_path)
-            #   save_file.write(checkpoint_buffer.getvalue())
+              # torch.save(policy_model.state_dict(), os.path.join(checkpoints_dir, "{}.ckpt".format(step)))
+            save_path = os.path.join(checkpoints_dir, "{}.ckpt".format(step))
+            with open(save_path, "wb") as save_file:
+              checkpoint_buffer = io.BytesIO()
+              torch.save(policy_model.state_dict(), checkpoint_buffer)
+              logging.info("Saving model checkpoint to: %s", save_path)
+              save_file.write(checkpoint_buffer.getvalue())
 
           optimizer.zero_grad()
           losses = policy_model.loss(
