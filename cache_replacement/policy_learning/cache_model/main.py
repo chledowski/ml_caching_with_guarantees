@@ -446,7 +446,11 @@ def main(_):
   policy_model = model.EvictionPolicyModel.from_config(model_config).to(device)
   if FLAGS.load_checkpoint != "None":
       print(f"Loading checkpoint from {FLAGS.load_checkpoint}.")
-      policy_model.load_state_dict(torch.load(FLAGS.load_checkpoint))
+      x = torch.load(FLAGS.load_checkpoint)
+      print(x)
+      print(x.keys())
+      policy_model.load_state_dict(x)
+
 
   optimizer = optim.Adam(policy_model.parameters(), lr=model_config.get("lr"))
 

@@ -106,3 +106,17 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
             --load_checkpoint="${RESULT_DIR}/${DATASET}__dagger=false__fraction=${FRACTION}/checkpoints/20000.ckpt" \
             --total_steps=1
+
+CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache_model.main \
+            --experiment_base_dir="/local/data/chledows/oa" \
+            --experiment_name="astar__dagger=true__fraction=0.1_eval_test" \
+            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+            --dagger_schedule_bindings="update_freq=100000000000" \
+            --dagger_schedule_bindings="initial=0" \
+            --dagger_schedule_bindings="final=0" \
+            --dagger_schedule_bindings="num_steps=1" \
+            --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+            --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+            --load_checkpoint="/local/data/chledows/oa/astar__dagger=true__fraction=0.1/checkpoints/20000.ckpt" \
+            --total_steps=1
