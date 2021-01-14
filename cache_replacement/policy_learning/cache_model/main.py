@@ -447,7 +447,7 @@ def main(_):
   if FLAGS.load_checkpoint != "None":
       print(f"Loading checkpoint from {FLAGS.load_checkpoint}.")
       x = torch.load(FLAGS.load_checkpoint)
-      print(x)
+      # print(x)
       print(x.keys())
       policy_model.load_state_dict(x)
 
