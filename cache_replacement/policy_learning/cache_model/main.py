@@ -393,17 +393,17 @@ def main(_):
     np.random.seed(FLAGS.seed)
     torch.random.manual_seed(FLAGS.seed)
 
-    if FLAGS.save_freq % FLAGS.small_eval_freq != 0:
-        raise ValueError(
-            ("Save frequency ({}) must be a multiple of evaluation frequency ({})."
-             " Allows choosing checkpoints based on their evaluation scores.")
-                .format(FLAGS.save_freq, FLAGS.small_eval_freq))
-
-    if FLAGS.full_eval_freq % FLAGS.small_eval_freq != 0:
-        raise ValueError(
-            ("Full evaluation frequency ({}) must be a multiple of small"
-             " evaluation frequency ({}) so that their values can be compared.")
-                .format(FLAGS.full_eval_freq, FLAGS.small_eval_freq))
+    # if FLAGS.save_freq % FLAGS.small_eval_freq != 0:
+    #     raise ValueError(
+    #         ("Save frequency ({}) must be a multiple of evaluation frequency ({})."
+    #          " Allows choosing checkpoints based on their evaluation scores.")
+    #             .format(FLAGS.save_freq, FLAGS.small_eval_freq))
+    #
+    # if FLAGS.full_eval_freq % FLAGS.small_eval_freq != 0:
+    #     raise ValueError(
+    #         ("Full evaluation frequency ({}) must be a multiple of small"
+    #          " evaluation frequency ({}) so that their values can be compared.")
+    #             .format(FLAGS.full_eval_freq, FLAGS.small_eval_freq))
 
     exp_dir = os.path.join(FLAGS.experiment_base_dir, FLAGS.experiment_name)
     logs_file = os.path.join(exp_dir, 'logs.txt')
