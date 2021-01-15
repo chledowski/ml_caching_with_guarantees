@@ -460,22 +460,10 @@ def main(_):
                 if hit_rate >= best_hit_rate:
                     best_ckpt = f'{step}.ckpt'
                     best_hit_rate = hit_rate
-
             print(best_ckpt, best_hit_rate)
-
-
-        #
-        # with open(f'{FLAGS.experiment_base_dir}logs.txt', "r") as f:
-        #     print(f)
-        #     data = f.read()
-        #     print(data)
-        #     train_logs = json.loads(data)
-
-        return
-        # x = torch.load()
-        # print(x)
-        print(x.keys())
-        policy_model.load_state_dict(x)
+        print(f"Loading {best_ckpt}...")
+        ckpt = torch.load(os.path.join(FLAGS.experiment_base_dir, 'checkpoints', best_ckpt))
+        policy_model.load_state_dict(ckpt)
 
     optimizer = optim.Adam(policy_model.parameters(), lr=model_config.get("lr"))
 
