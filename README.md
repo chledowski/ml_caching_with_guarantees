@@ -16,10 +16,10 @@ Afterwards, please install OpenAI baselines with
  
  ```pip install -e git+https://github.com/openai/baselines.git@ea25b9e8b234e6ee1bca43083f8f3cf974143998#egg=baselines```
  
-## Training models
+## Training models with evaluation and parsing args
 To run training, use this command:
 
-```bash run_training.sh <DATASET> <DEVICE> <FRACTION> <DAGGER> <RESULT_DIR>```
+```bash run.sh <DATASET> <DEVICE> <FRACTION> <DAGGER> <RESULT_DIR>```
 
 where:
 - DATASET - the name of used dataset (do not forget to download all three splits: train, valid, test)
@@ -30,6 +30,15 @@ where:
 
 For example:
 
-```bash run_training.sh astar 0 33 True ./results```
+```bash run.sh astar 0 0.33 True ./results```
 
-## Evaluation of the trained models
+This example script will do the following:
+* Train a Parrot model with DAgger on 33% of the astar dataset, and several things save to the `./results/astar__dagger=true__fraction=0.33` folder:
+    * `evictions` and `predictions` folders will contain easily readible evictions and predictions of the model during training
+    * three `.json` files containing the configs used in the training
+    * `tensorboard` folder with visualization data
+    * `checkpoints` folder with saved models
+    * `logs.txt` with the cache hit rates per full validation (this will be used in evaluation to get the best checkpoint)
+* Evaluate the trained model on the test set, saving the results to `./results/astar__dagger=true__fraction=0.33/test` folder.
+* Create a `./results/parsed/astar__dagger=true__fraction=0.33` folder that will contain the crucial files (parsed outs + logs with scores)
+* Parse the evictions and predictions from the evaluation, to a more leightweight format.

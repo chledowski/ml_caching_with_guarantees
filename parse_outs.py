@@ -22,30 +22,20 @@ def load_obj(name):
 
 def parse_outs(exp_folder, steps, outf):
     step_list = eval(steps)
-    print(0, step_list)
     for step in step_list:
 
         pred_file = os.path.join(exp_folder, 'predictions', f'off_policy_valid_full-{step}.txt')
         evict_file = os.path.join(exp_folder, 'evictions', f'valid_full-{step}.txt')
+        print(f"Parsing {pred_file} and {evict_file}.")
         output_folder = os.path.join(outf, exp_folder.split('/')[-1])
         os.makedirs(os.path.join(output_folder, str(step)), exist_ok=True)
-        output_file = os.path.join(output_folder, str(step), 'valid-parsed-preds.txt')
+        output_file = os.path.join(output_folder, str(step), 'test-parsed-preds.txt')
 
-        print(111, step, pred_file, evict_file, output_folder, output_file)
+        # print(111, step, pred_file, evict_file, output_folder, output_file)
         pred_reader = reader(pred_file)
         evict_reader = reader(evict_file)
 
         i = 0
-
-        # pred_lines = 0
-        # evict_lines = 0
-        # for pred_line in pred_reader:
-        #     if pred_line == "":
-        #         pred_lines += 1
-        # for evict_line in evict_reader:
-        #     evict_lines += 1
-        #
-        # print(10, pred_lines, evict_lines)
 
         in_cache_line = False
         set_dict = {}
