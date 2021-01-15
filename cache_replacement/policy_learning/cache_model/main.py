@@ -406,7 +406,7 @@ def main(_):
                 .format(FLAGS.full_eval_freq, FLAGS.small_eval_freq))
 
     exp_dir = os.path.join(FLAGS.experiment_base_dir, FLAGS.experiment_name)
-    logs_file = os.path.join(FLAGS.experiment_base_dir, 'logs.txt')
+    logs_file = os.path.join(exp_dir, 'logs.txt')
     hit_rate_logs = {}
     common_utils.create_experiment_directory(exp_dir, FLAGS.force_overwrite)
     tensorboard_dir = os.path.join(exp_dir, "tensorboard")
