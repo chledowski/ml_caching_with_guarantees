@@ -545,7 +545,7 @@ def main(_):
                             max_examples=eval_size))
                         log_hit_rates(
                             tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
-                        if "cache_hit_rate/train" + suffix in hit_rate_logs:
+                        if "cache_hit_rate/valid" + suffix in hit_rate_logs:
                             hit_rate_logs["cache_hit_rate/valid" + suffix].append((step, hit_rates))
                         else:
                             hit_rate_logs["cache_hit_rate/valid" + suffix] = [(step, hit_rates)]
