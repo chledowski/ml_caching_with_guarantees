@@ -57,10 +57,10 @@ from cache_replacement.policy_learning.common import config as cfg
 from cache_replacement.policy_learning.common import utils as common_utils
 
 FLAGS = flags.FLAGS
-flags.DEFINE_string(
-    "load_checkpoint",
-    "None",
-    "Path to the checkpoint.")
+flags.DEFINE_bool(
+    "evaluate",
+    False,
+    "Use 'True' to evaluate the model. REMEMBER: the base dir should be the dir containing the evaluated model. Best ckpt will be chosen automatically.")
 flags.DEFINE_string(
     "train_memtrace",
     "cache_replacement/policy_learning/cache/traces/omnetpp_train.csv",
@@ -448,9 +448,13 @@ def main(_):
     logging.info("Device: %s", device)
 
     policy_model = model.EvictionPolicyModel.from_config(model_config).to(device)
-    if FLAGS.load_checkpoint != "None":
-        print(f"Loading checkpoint from {FLAGS.load_checkpoint}.")
-        x = torch.load(FLAGS.load_checkpoint)
+    if FLAGS.evaluate:
+        print(f"Picking the best checkpoint by checking {FLAGS.experiment_base_dir}/logs.txt")
+        train_logs = json.load(f)
+        print(train_logs)
+        print(2, eval(train_logs))
+        return
+        # x = torch.load()
         # print(x)
         print(x.keys())
         policy_model.load_state_dict(x)
@@ -501,7 +505,7 @@ def main(_):
                           eval_size (int): the number of examples to evaluate on.
                           suffix (str): appended to all logging and tensorboard paths.
                         """
-                        if FLAGS.load_checkpoint != "None":
+                        if FLAGS.evaluate:
                             on_policy_valid_data, hit_rates = next(measure_cache_hit_rate(
                                 FLAGS.valid_memtrace, cache_config, policy_model,
                                 schedules.ConstantSchedule(1), get_step,
@@ -553,7 +557,7 @@ def main(_):
                         evaluate(policy_model, on_policy_valid_data[-eval_size:], step,
                                  "on_policy_valid" + suffix, tb_writer, predictions_dir)
 
-                    if FLAGS.load_checkpoint != "None":
+                    if FLAGS.evaluate:
                         evaluate_helper(len(oracle_valid_data), "_full", hit_rate_logs)
                         with open(logs_file, "w") as f:
                             json.dump(hit_rate_logs, f, indent=4, sort_keys=True)

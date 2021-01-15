@@ -5,6 +5,7 @@ DEVICE=$2
 FRACTION=$3
 DAGGER=$4
 RESULT_DIR=$5
+DELETE_PARSED_OUTS=$6  # we parse the outputs from the training. They take much space. This enables their deletion.
 
 # Train on fraction
 if [ "${FRACTION}" != "1" ]; then
@@ -19,87 +20,58 @@ if [ "${FRACTION}" != "1" ]; then
     head -n "${DECREASED_NUM_LINES_INT}" "cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv" \
      > "cache_replacement/policy_learning/cache/traces/${DATASET}_train_${FRACTION}.csv"
 
+    TRAIN_TRACE="cache_replacement/policy_learning/cache/traces/${DATASET}_train_${FRACTION}.csv"
 
-    if [ "${DAGGER}" == "True" ]; then
-        CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="${RESULT_DIR}" \
-            --experiment_name="${DATASET}__dagger=true__fraction=${FRACTION}" \
-            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-            --dagger_schedule_bindings="update_freq=5000" \
-            --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train_${FRACTION}.csv" \
-            --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=20001 \
-            --save_freq=10000 \
-            --full_eval_freq=10000 \
-            --small_eval_freq=5000 \
-            --small_eval_size=5000
-
-    else
-        CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="${RESULT_DIR}" \
-            --experiment_name="${DATASET}__dagger=false__fraction=${FRACTION}" \
-            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-            --dagger_schedule_bindings="update_freq=100000000000" \
-            --dagger_schedule_bindings="initial=0" \
-            --dagger_schedule_bindings="final=0" \
-            --dagger_schedule_bindings="num_steps=1" \
-            --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train_${FRACTION}.csv" \
-            --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=20001 \
-            --save_freq=10000 \
-            --full_eval_freq=10000 \
-            --small_eval_freq=5000 \
-            --small_eval_size=5000
-
-    fi
 else
+    TRAIN_TRACE="cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv"
+fi
 
-    if [ "${DAGGER}" == "True" ]; then
-        CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="${RESULT_DIR}" \
-            --experiment_name="${DATASET}__dagger=true__fraction=${FRACTION}" \
-            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-            --dagger_schedule_bindings="update_freq=5000" \
-            --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv" \
-            --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=20001 \
-            --save_freq=10000 \
-            --full_eval_freq=10000 \
-            --small_eval_freq=5000 \
-            --small_eval_size=5000
+if [ "${DAGGER}" == "True" ]; then
+    EXP_NAME="${DATASET}__dagger=true__fraction=${FRACTION}"
 
-    else
-        CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="${RESULT_DIR}" \
-            --experiment_name="${DATASET}__dagger=false__fraction=${FRACTION}" \
-            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-            --dagger_schedule_bindings="update_freq=100000000000" \
-            --dagger_schedule_bindings="initial=0" \
-            --dagger_schedule_bindings="final=0" \
-            --dagger_schedule_bindings="num_steps=1" \
-            --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv" \
-            --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=20001 \
-            --save_freq=10000 \
-            --full_eval_freq=10000 \
-            --small_eval_freq=5000 \
-            --small_eval_size=5000
+    CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
+        --experiment_base_dir="${RESULT_DIR}" \
+        --experiment_name="${EXP_NAME}" \
+        --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+        --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+        --dagger_schedule_bindings="update_freq=5000" \
+        --train_memtrace="${TRAIN_TRACE}" \
+        --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
+        --total_steps=20001 \
+        --save_freq=10000 \
+        --full_eval_freq=10000 \
+        --small_eval_freq=5000 \
+        --small_eval_size=5000
 
-    fi
+else
+    EXP_NAME="${DATASET}__dagger=false__fraction=${FRACTION}"
+    CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
+        --experiment_base_dir="${RESULT_DIR}" \
+        --experiment_name="${EXP_NAME}" \
+        --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+        --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+        --dagger_schedule_bindings="update_freq=100000000000" \
+        --dagger_schedule_bindings="initial=0" \
+        --dagger_schedule_bindings="final=0" \
+        --dagger_schedule_bindings="num_steps=1" \
+        --train_memtrace="${TRAIN_TRACE}" \
+        --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
+        --total_steps=20001 \
+        --save_freq=10000 \
+        --full_eval_freq=10000 \
+        --small_eval_freq=5000 \
+        --small_eval_size=5000
+
 fi
 
 
 # ADD CHOOSING BEST CKPT!
 
-
+# TODO change 1 valid to test below
 # Evaluate
 CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="${RESULT_DIR}" \
-            --experiment_name="${DATASET}__dagger=false__fraction=${FRACTION}_eval_test" \
+            --experiment_base_dir="${RESULT_DIR}/${EXP_NAME}" \
+            --experiment_name="test" \
             --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
             --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
             --dagger_schedule_bindings="update_freq=100000000000" \
@@ -108,12 +80,14 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
             --dagger_schedule_bindings="num_steps=1" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --load_checkpoint="${RESULT_DIR}/${DATASET}__dagger=false__fraction=${FRACTION}/checkpoints/10000.ckpt" \
+            --evaluate=True \
             --total_steps=1
 
-#CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache_model.main \
-#            --experiment_base_dir="/local/data/chledows/oa/old" \
-#            --experiment_name="astar__dagger=false__fraction=0.1_eval_test" \
+# TODO: parse
+
+#CUDA_VISIBLE_DEVICES=6 python3 -m cache_replacement.policy_learning.cache_model.main \
+#            --experiment_base_dir="/local/data/chledows/oa/testing_1/astar__dagger=false__fraction=1/" \
+#            --experiment_name="test" \
 #            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
 #            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
 #            --dagger_schedule_bindings="update_freq=100000000000" \
@@ -122,7 +96,7 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
 #            --dagger_schedule_bindings="num_steps=1" \
 #            --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
 #            --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
-#            --load_checkpoint="/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt" \
+#            --load_checkpoint="/local/data/chledows/oa/testing_1/astar__dagger=false__fraction=1/checkpoints/10000.ckpt" \
 #            --total_steps=1
 
 
