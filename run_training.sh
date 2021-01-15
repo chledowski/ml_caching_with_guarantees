@@ -29,7 +29,7 @@ if [ "${FRACTION}" != "1" ]; then
             --dagger_schedule_bindings="update_freq=5000" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train_${FRACTION}.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=30001 \
+            --total_steps=20001 \
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
@@ -47,7 +47,7 @@ if [ "${FRACTION}" != "1" ]; then
             --dagger_schedule_bindings="num_steps=1" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train_${FRACTION}.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=30001 \
+            --total_steps=20001 \
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
@@ -65,7 +65,7 @@ else
             --dagger_schedule_bindings="update_freq=5000" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=30001 \
+            --total_steps=20001 \
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
@@ -83,7 +83,7 @@ else
             --dagger_schedule_bindings="num_steps=1" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_train.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --total_steps=30001 \
+            --total_steps=20001 \
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
@@ -91,6 +91,10 @@ else
 
     fi
 fi
+
+
+# ADD CHOOSING BEST CKPT!
+
 
 # Evaluate
 CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
@@ -104,62 +108,62 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
             --dagger_schedule_bindings="num_steps=1" \
             --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
             --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-            --load_checkpoint="${RESULT_DIR}/${DATASET}__dagger=false__fraction=${FRACTION}/checkpoints/20000.ckpt" \
+            --load_checkpoint="${RESULT_DIR}/${DATASET}__dagger=false__fraction=${FRACTION}/checkpoints/10000.ckpt" \
             --total_steps=1
 
-CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache_model.main \
-            --experiment_base_dir="/local/data/chledows/oa/old" \
-            --experiment_name="astar__dagger=false__fraction=0.1_eval_test" \
-            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-            --dagger_schedule_bindings="update_freq=100000000000" \
-            --dagger_schedule_bindings="initial=0" \
-            --dagger_schedule_bindings="final=0" \
-            --dagger_schedule_bindings="num_steps=1" \
-            --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
-            --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
-            --load_checkpoint="/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt" \
-            --total_steps=1
+#CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache_model.main \
+#            --experiment_base_dir="/local/data/chledows/oa/old" \
+#            --experiment_name="astar__dagger=false__fraction=0.1_eval_test" \
+#            --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+#            --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+#            --dagger_schedule_bindings="update_freq=100000000000" \
+#            --dagger_schedule_bindings="initial=0" \
+#            --dagger_schedule_bindings="final=0" \
+#            --dagger_schedule_bindings="num_steps=1" \
+#            --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+#            --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+#            --load_checkpoint="/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt" \
+#            --total_steps=1
 
 
-CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache.main \
-  --experiment_base_dir="/local/data/chledows/oa" \
-  --experiment_name="astar__dagger=false__fraction=0.001test" \
-  --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-  --cache_configs="cache_replacement/policy_learning/cache/configs/eviction_policy/learned.json" \
-  --memtrace_file="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
-  --config_bindings="associativity=16" \
-  --config_bindings="capacity=2097152" \
-  --config_bindings="eviction_policy.scorer.checkpoint=\"/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt\"" \
-  --config_bindings="eviction_policy.scorer.config_path=\"/local/data/chledows/oa/astar__dagger=false__fraction=0.1/model_config.json\"" \
-  --warmup_period=0
-
-
-CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.main \
-    --experiment_base_dir="/local/data/chledows/oa" \
-    --experiment_name="astar__test_training_with_logging" \
-    --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-    --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-    --dagger_schedule_bindings="update_freq=5000" \
-    --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_train.csv" \
-    --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
-    --total_steps=30001 \
-    --save_freq=10000 \
-    --full_eval_freq=10000 \
-    --small_eval_freq=5000 \
-    --small_eval_size=5000
-
-
-CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.main \
-  --experiment_base_dir=/tmp \
-  --experiment_name=sample_model_llc \
-  --cache_configs=cache_replacement/policy_learning/cache/configs/default.json \
-  --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-  --model_bindings="address_embedder.max_vocab_size=5000" \
-  --train_memtrace=cache_replacement/policy_learning/cache/traces/sample_trace.csv \
-  --valid_memtrace=cache_replacement/policy_learning/cache/traces/sample_trace.csv \
-    --total_steps=3001 \
-    --save_freq=1000 \
-    --full_eval_freq=1000 \
-    --small_eval_freq=500 \
-    --small_eval_size=500
+#CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache.main \
+#  --experiment_base_dir="/local/data/chledows/oa" \
+#  --experiment_name="astar__dagger=false__fraction=0.001test" \
+#  --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+#  --cache_configs="cache_replacement/policy_learning/cache/configs/eviction_policy/learned.json" \
+#  --memtrace_file="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+#  --config_bindings="associativity=16" \
+#  --config_bindings="capacity=2097152" \
+#  --config_bindings="eviction_policy.scorer.checkpoint=\"/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt\"" \
+#  --config_bindings="eviction_policy.scorer.config_path=\"/local/data/chledows/oa/astar__dagger=false__fraction=0.1/model_config.json\"" \
+#  --warmup_period=0
+#
+#
+#CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.main \
+#    --experiment_base_dir="/local/data/chledows/oa" \
+#    --experiment_name="astar__test_training_with_logging" \
+#    --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+#    --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+#    --dagger_schedule_bindings="update_freq=5000" \
+#    --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_train.csv" \
+#    --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+#    --total_steps=30001 \
+#    --save_freq=10000 \
+#    --full_eval_freq=10000 \
+#    --small_eval_freq=5000 \
+#    --small_eval_size=5000
+#
+#
+#CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.main \
+#  --experiment_base_dir=/tmp \
+#  --experiment_name=sample_model_llc \
+#  --cache_configs=cache_replacement/policy_learning/cache/configs/default.json \
+#  --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+#  --model_bindings="address_embedder.max_vocab_size=5000" \
+#  --train_memtrace=cache_replacement/policy_learning/cache/traces/sample_trace.csv \
+#  --valid_memtrace=cache_replacement/policy_learning/cache/traces/sample_trace.csv \
+#    --total_steps=3001 \
+#    --save_freq=1000 \
+#    --full_eval_freq=1000 \
+#    --small_eval_freq=500 \
+#    --small_eval_size=500
