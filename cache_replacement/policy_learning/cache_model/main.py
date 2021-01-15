@@ -33,6 +33,7 @@ Trains full model with all additions on trained and validated on the sample trac
 
 import io
 import os
+import json
 from absl import app
 from absl import flags
 from absl import logging
@@ -134,12 +135,7 @@ def schedule_from_config(config):
         raise ValueError("Unsupported schedule type: {}".format(config.get("type")))
 
 
-def save_obj(obj, name):
-    with open(name + '.pkl', 'wb') as f:
-        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-
-
-def evaluate(policy_model, data, step, descriptor, tb_writer, log_dir, k=5, hit_rate_logs=None):
+def evaluate(policy_model, data, step, descriptor, tb_writer, log_dir, k=5):
     """Computes metrics about the model on the data and logs them to tensorboard.
 
     Args:
@@ -257,10 +253,6 @@ def evaluate(policy_model, data, step, descriptor, tb_writer, log_dir, k=5, hit_
 
     for m in metrics:
         m.write_to_tensorboard(tb_writer, descriptor, step)
-
-    print(1, metrics)
-    print(2, metrics[0])
-    hit_rate_logs[descriptor] = (step, metrics[0])
 
     return metrics
 
@@ -435,7 +427,6 @@ def main(_):
     logging.info("Model config: %s", model_config)
     with open(os.path.join(exp_dir, "model_config.json"), "w") as f:
         model_config.to_file(f)
-
     cache_config = cfg.Config.from_files_and_bindings(
         FLAGS.cache_configs, FLAGS.cache_bindings)
     logging.info("Cache config: %s", cache_config)
@@ -510,13 +501,23 @@ def main(_):
                           eval_size (int): the number of examples to evaluate on.
                           suffix (str): appended to all logging and tensorboard paths.
                         """
+                        if FLAGS.load_checkpoint != "None":
+                            on_policy_valid_data, hit_rates = next(measure_cache_hit_rate(
+                                FLAGS.valid_memtrace, cache_config, policy_model,
+                                schedules.ConstantSchedule(1), get_step,
+                                os.path.join(
+                                    evict_trace_dir, "valid{}-{}.txt".format(suffix, step)),
+                                max_examples=eval_size))
+                            hit_rate_logs["cache_hit_rate/valid" + suffix] = [(step, hit_rates)]
+                            print(3, hit_rate_logs)
+                            log_hit_rates(
+                                tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
+                            return
                         evaluate(policy_model, oracle_valid_data[-eval_size:], step,
-                                 "off_policy_valid" + suffix, tb_writer, predictions_dir, hit_rate_logs=hit_rate_logs)
+                                 "off_policy_valid" + suffix, tb_writer, predictions_dir)
                         # train_data is defined in the loop, but evaluate_helper is only
                         # called in the same loop iteration.
                         # pylint: disable=cell-var-from-loop
-                        if FLAGS.load_checkpoint != "None":
-                            return
                         evaluate(policy_model, train_data[-eval_size:],
                                  step, "train" + suffix, tb_writer, predictions_dir)
                         # pylint: enable=cell-var-from-loop
@@ -530,7 +531,10 @@ def main(_):
                             max_examples=eval_size, use_oracle_scores=False))
                         log_hit_rates(
                             tb_writer, "cache_hit_rate/train" + suffix, hit_rates, step)
-
+                        if "cache_hit_rate/train" + suffix in hit_rate_logs:
+                            hit_rate_logs["cache_hit_rate/train" + suffix].append((step, hit_rates))
+                        else:
+                            hit_rate_logs["cache_hit_rate/train" + suffix] = [(step, hit_rates)]
                         # Use oracle scores, since eviction trace in log_evaluate_stats will
                         # log with on-policy scores.
                         on_policy_valid_data, hit_rates = next(measure_cache_hit_rate(
@@ -541,12 +545,18 @@ def main(_):
                             max_examples=eval_size))
                         log_hit_rates(
                             tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
+                        if "cache_hit_rate/train" + suffix in hit_rate_logs:
+                            hit_rate_logs["cache_hit_rate/valid" + suffix].append((step, hit_rates))
+                        else:
+                            hit_rate_logs["cache_hit_rate/valid" + suffix] = [(step, hit_rates)]
+                        print(33, hit_rate_logs)
                         evaluate(policy_model, on_policy_valid_data[-eval_size:], step,
                                  "on_policy_valid" + suffix, tb_writer, predictions_dir)
 
                     if FLAGS.load_checkpoint != "None":
                         evaluate_helper(len(oracle_valid_data), "_full", hit_rate_logs)
-                        save_obj(hit_rate_logs, logs_file)
+                        with open(logs_file, "w") as f:
+                            json.dump(hit_rate_logs, f, indent=4, sort_keys=True)
                         return
 
                     if step % FLAGS.small_eval_freq == 0:
@@ -580,7 +590,8 @@ def main(_):
                                 tb_writer, "loss/{}".format(loss_name), loss_value, step)
 
                     if step == FLAGS.total_steps:
-                        save_obj(hit_rate_logs, logs_file)
+                        with open(logs_file, "w") as f:
+                            json.dump(hit_rate_logs, f, indent=4, sort_keys=True)
                         return
 
                     # Break out of inner-loop to get next set of k * update_freq batches

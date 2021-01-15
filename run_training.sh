@@ -33,7 +33,7 @@ if [ "${FRACTION}" != "1" ]; then
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
-            --small_eval_size=5000 \
+            --small_eval_size=5000
 
     else
         CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
@@ -51,7 +51,7 @@ if [ "${FRACTION}" != "1" ]; then
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
-            --small_eval_size=5000 \
+            --small_eval_size=5000
 
     fi
 else
@@ -69,7 +69,7 @@ else
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
-            --small_eval_size=5000 \
+            --small_eval_size=5000
 
     else
         CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
@@ -87,7 +87,7 @@ else
             --save_freq=10000 \
             --full_eval_freq=10000 \
             --small_eval_freq=5000 \
-            --small_eval_size=5000 \
+            --small_eval_size=5000
 
     fi
 fi
@@ -133,3 +133,18 @@ CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache.main \
   --config_bindings="eviction_policy.scorer.checkpoint=\"/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt\"" \
   --config_bindings="eviction_policy.scorer.config_path=\"/local/data/chledows/oa/astar__dagger=false__fraction=0.1/model_config.json\"" \
   --warmup_period=0
+
+
+CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.main \
+    --experiment_base_dir="/local/data/chledows/oa" \
+    --experiment_name="astar__test_training_with_logging" \
+    --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+    --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+    --dagger_schedule_bindings="update_freq=5000" \
+    --train_memtrace="cache_replacement/policy_learning/cache/traces/astar_train.csv" \
+    --valid_memtrace="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
+    --total_steps=30001 \
+    --save_freq=10000 \
+    --full_eval_freq=10000 \
+    --small_eval_freq=5000 \
+    --small_eval_size=5000
