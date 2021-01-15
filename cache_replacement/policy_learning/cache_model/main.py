@@ -449,8 +449,8 @@ def main(_):
 
     policy_model = model.EvictionPolicyModel.from_config(model_config).to(device)
     if FLAGS.evaluate:
-        print(fr"Picking the best checkpoint by checking {FLAGS.experiment_base_dir}logs.txt")
-        with open(fr'{FLAGS.experiment_base_dir}logs.txt', "w") as f:
+        print(f"Picking the best checkpoint by checking {FLAGS.experiment_base_dir}logs.txt")
+        with open(f'{FLAGS.experiment_base_dir}logs.txt', "r") as f:
             train_logs = json.load(f)
         print(train_logs)
         print(2, eval(train_logs))
