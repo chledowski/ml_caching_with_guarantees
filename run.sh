@@ -65,7 +65,6 @@ else
 
 fi
 
-# TODO change 1 valid to test below
 # Evaluate
 CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
     --experiment_base_dir="${RESULT_DIR}/${EXP_NAME}" \
@@ -77,8 +76,8 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
     --dagger_schedule_bindings="initial=0" \
     --dagger_schedule_bindings="final=0" \
     --dagger_schedule_bindings="num_steps=1" \
-    --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
-    --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
+    --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_test.csv" \
+    --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_test.csv" \
     --evaluate=True \
     --total_steps=1
 
