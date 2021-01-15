@@ -453,7 +453,16 @@ def main(_):
         with open(os.path.join(FLAGS.experiment_base_dir, f'logs.txt')) as json_file:
             print(json_file)
             data = json.load(json_file)
-            print(data)
+            print(data['cache_hit_rate/valid_full'])
+            best_hit_rate = 0
+            best_ckpt = -1
+            for step, hit_rate in data['cache_hit_rate/valid_full']:
+                if hit_rate >= best_hit_rate:
+                    best_ckpt = f'{step}.ckpt'
+                    best_hit_rate = hit_rate
+
+            print(best_ckpt, best_hit_rate)
+
 
         #
         # with open(f'{FLAGS.experiment_base_dir}logs.txt', "r") as f:
