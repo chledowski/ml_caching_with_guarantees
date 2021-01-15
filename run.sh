@@ -83,4 +83,6 @@ CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cach
 
 # Parse the outs
 python3 parse_outs.py --exp-folder="${RESULT_DIR}/${EXP_NAME}/test" --steps=0 --out-folder="${RESULT_DIR}/parsed/${EXP_NAME}"
+
+# Move logs to the parsed folder
 cp -r "${RESULT_DIR}/${EXP_NAME}/test/logs.txt" "${RESULT_DIR}/parsed/${EXP_NAME}"
