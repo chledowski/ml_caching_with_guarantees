@@ -451,7 +451,8 @@ def main(_):
     if FLAGS.evaluate:
         print(f"Picking the best checkpoint by checking {FLAGS.experiment_base_dir}logs.txt")
         with open(f'{FLAGS.experiment_base_dir}logs.txt', "r") as f:
-            train_logs = json.load(f.read())
+            print(f)
+            train_logs = json.loads(f)
         print(train_logs)
         print(2, eval(train_logs))
         return
