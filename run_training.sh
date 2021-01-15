@@ -130,6 +130,6 @@ CUDA_VISIBLE_DEVICES=1 python3 -m cache_replacement.policy_learning.cache.main \
   --memtrace_file="cache_replacement/policy_learning/cache/traces/astar_valid.csv" \
   --config_bindings="associativity=16" \
   --config_bindings="capacity=2097152" \
-  --config_bindings="eviction_policy.scorer.checkpoint=\"/local/data/chledows/oa/astar__dagger=false__fraction=0.001/checkpoints/20000.ckpt\"" \
-  --config_bindings="eviction_policy.scorer.config_path=\"/local/data/chledows/oa/astar__dagger=false__fraction=0.001/model_config.json\"" \
+  --config_bindings="eviction_policy.scorer.checkpoint=\"/local/data/chledows/oa/old/astar__dagger=false__fraction=0.1/checkpoints/20000.ckpt\"" \
+  --config_bindings="eviction_policy.scorer.config_path=\"/local/data/chledows/oa/astar__dagger=false__fraction=0.1/model_config.json\"" \
   --warmup_period=0
