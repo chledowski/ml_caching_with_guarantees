@@ -260,7 +260,7 @@ def evaluate(policy_model, data, step, descriptor, tb_writer, log_dir, k=5):
 def measure_cache_hit_rate(
         memtrace_path, cache_config, eviction_model, model_prob_schedule,
         get_step, eviction_trace_path, max_examples=None, use_oracle_scores=True,
-        k=5):
+        k=1):
     """Measures the hit rate on the memtrace, returning the eviction entries.
 
     Passes through the entire memory trace and returns eviction entries
@@ -518,23 +518,23 @@ def main(_):
                         # train_data is defined in the loop, but evaluate_helper is only
                         # called in the same loop iteration.
                         # pylint: disable=cell-var-from-loop
-                        evaluate(policy_model, train_data[-eval_size:],
-                                 step, "train" + suffix, tb_writer, predictions_dir)
+                        # evaluate(policy_model, train_data[-eval_size:],
+                        #          step, "train" + suffix, tb_writer, predictions_dir)
                         # pylint: enable=cell-var-from-loop
 
                         # Log the cache hit rates on portions of train / valid
-                        _, hit_rates = next(measure_cache_hit_rate(
-                            FLAGS.train_memtrace, cache_config, policy_model,
-                            schedules.ConstantSchedule(1), get_step,
-                            os.path.join(
-                                evict_trace_dir, "train{}-{}.txt".format(suffix, step)),
-                            max_examples=eval_size, use_oracle_scores=False))
-                        log_hit_rates(
-                            tb_writer, "cache_hit_rate/train" + suffix, hit_rates, step)
-                        if "cache_hit_rate/train" + suffix in hit_rate_logs:
-                            hit_rate_logs["cache_hit_rate/train" + suffix].append((step, hit_rates))
-                        else:
-                            hit_rate_logs["cache_hit_rate/train" + suffix] = [(step, hit_rates)]
+                        # _, hit_rates = next(measure_cache_hit_rate(
+                        #     FLAGS.train_memtrace, cache_config, policy_model,
+                        #     schedules.ConstantSchedule(1), get_step,
+                        #     os.path.join(
+                        #         evict_trace_dir, "train{}-{}.txt".format(suffix, step)),
+                        #     max_examples=eval_size, use_oracle_scores=False))
+                        # log_hit_rates(
+                        #     tb_writer, "cache_hit_rate/train" + suffix, hit_rates, step)
+                        # if "cache_hit_rate/train" + suffix in hit_rate_logs:
+                        #     hit_rate_logs["cache_hit_rate/train" + suffix].append((step, hit_rates))
+                        # else:
+                        #     hit_rate_logs["cache_hit_rate/train" + suffix] = [(step, hit_rates)]
                         # Use oracle scores, since eviction trace in log_evaluate_stats will
                         # log with on-policy scores.
                         on_policy_valid_data, hit_rates = next(measure_cache_hit_rate(
@@ -559,8 +559,8 @@ def main(_):
                             json.dump(hit_rate_logs, f, indent=4, sort_keys=True)
                         return
 
-                    if step % FLAGS.small_eval_freq == 0:
-                        evaluate_helper(FLAGS.small_eval_size, "", hit_rate_logs)
+                    # if step % FLAGS.small_eval_freq == 0:
+                    #     evaluate_helper(FLAGS.small_eval_size, "", hit_rate_logs)
 
                     if step % FLAGS.full_eval_freq == 0:
                         evaluate_helper(len(oracle_valid_data), "_full", hit_rate_logs)
