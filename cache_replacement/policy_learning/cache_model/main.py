@@ -457,9 +457,9 @@ def main(_):
             best_hit_rate = 0
             best_ckpt = -1
             for step, hit_rate in data['cache_hit_rate/valid_full']:
-                if hit_rate >= best_hit_rate:
+                if hit_rate[0] >= best_hit_rate:
                     best_ckpt = f'{step}.ckpt'
-                    best_hit_rate = hit_rate
+                    best_hit_rate = hit_rate[0]
             print(best_ckpt, best_hit_rate)
         print(f"Loading {best_ckpt}...")
         ckpt = torch.load(os.path.join(FLAGS.experiment_base_dir, 'checkpoints', best_ckpt))
