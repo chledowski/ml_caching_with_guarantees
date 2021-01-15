@@ -494,7 +494,7 @@ def main(_):
                 for batch_num, batch in enumerate(utils.as_batches(
                         [train_data], FLAGS.batch_size,
                         model_config.get("sequence_length"))):
-                    def evaluate_helper(eval_size, suffix, hit_rate_logs=None):
+                    def evaluate_helper(eval_size, suffix, hit_rate_logs):
                         """Evaluates the model on train / valid data on and off-policy.
 
                         Args:
@@ -560,7 +560,7 @@ def main(_):
                         return
 
                     if step % FLAGS.small_eval_freq == 0:
-                        evaluate_helper(FLAGS.small_eval_size, "")
+                        evaluate_helper(FLAGS.small_eval_size, "", hit_rate_logs)
 
                     if step % FLAGS.full_eval_freq == 0:
                         evaluate_helper(len(oracle_valid_data), "_full", hit_rate_logs)

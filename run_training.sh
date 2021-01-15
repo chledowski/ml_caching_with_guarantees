@@ -148,3 +148,18 @@ CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.
     --full_eval_freq=10000 \
     --small_eval_freq=5000 \
     --small_eval_size=5000
+
+
+CUDA_VISIBLE_DEVICES=7 python3 -m cache_replacement.policy_learning.cache_model.main \
+  --experiment_base_dir=/tmp \
+  --experiment_name=sample_model_llc \
+  --cache_configs=cache_replacement/policy_learning/cache/configs/default.json \
+  --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+  --model_bindings="address_embedder.max_vocab_size=5000" \
+  --train_memtrace=cache_replacement/policy_learning/cache/traces/sample_trace.csv \
+  --valid_memtrace=cache_replacement/policy_learning/cache/traces/sample_trace.csv \
+    --total_steps=3001 \
+    --save_freq=1000 \
+    --full_eval_freq=1000 \
+    --small_eval_freq=500 \
+    --small_eval_size=500
