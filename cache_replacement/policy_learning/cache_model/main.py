@@ -450,13 +450,18 @@ def main(_):
     policy_model = model.EvictionPolicyModel.from_config(model_config).to(device)
     if FLAGS.evaluate:
         print(f"Picking the best checkpoint by checking {FLAGS.experiment_base_dir}logs.txt")
-        with open(f'{FLAGS.experiment_base_dir}logs.txt', "r") as f:
-            print(f)
-            data = f.read()
+        with open(f'{FLAGS.experiment_base_dir}logs.txt') as json_file:
+            print(json_file)
+            data = json.load(json_file)
             print(data)
-            train_logs = json.loads(data)
-        print(train_logs)
-        print(2, eval(train_logs))
+
+        #
+        # with open(f'{FLAGS.experiment_base_dir}logs.txt', "r") as f:
+        #     print(f)
+        #     data = f.read()
+        #     print(data)
+        #     train_logs = json.loads(data)
+
         return
         # x = torch.load()
         # print(x)
