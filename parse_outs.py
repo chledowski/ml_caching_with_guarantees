@@ -20,7 +20,7 @@ def load_obj(name):
         return pickle.load(f)
 
 
-def parse_outs(exp_folder, steps, outf):
+def parse_outs(exp_folder, steps, output_folder):
     step_list = eval(steps)
     print(step_list)
     if isinstance(step_list, int):
@@ -31,7 +31,7 @@ def parse_outs(exp_folder, steps, outf):
         pred_file = os.path.join(exp_folder, 'predictions', f'off_policy_valid_full-{step}.txt')
         evict_file = os.path.join(exp_folder, 'evictions', f'valid_full-{step}.txt')
         print(f"Parsing {pred_file} and {evict_file}.")
-        output_folder = os.path.join(outf, exp_folder.split('/')[-1])
+        # output_folder = os.path.join(outf, exp_folder.split('/')[-1])
         print(output_folder, os.path.join(output_folder, str(step)))
         os.makedirs(os.path.join(output_folder, str(step)), exist_ok=True)
         output_file = os.path.join(output_folder, str(step), 'test-parsed-preds.txt')
