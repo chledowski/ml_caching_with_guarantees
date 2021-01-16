@@ -22,6 +22,7 @@ def load_obj(name):
 
 def parse_outs(exp_folder, steps, outf):
     step_list = eval(steps)
+    print(step_list)
     for step in step_list:
 
         pred_file = os.path.join(exp_folder, 'predictions', f'off_policy_valid_full-{step}.txt')
