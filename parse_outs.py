@@ -32,6 +32,7 @@ def parse_outs(exp_folder, steps, outf):
         evict_file = os.path.join(exp_folder, 'evictions', f'valid_full-{step}.txt')
         print(f"Parsing {pred_file} and {evict_file}.")
         output_folder = os.path.join(outf, exp_folder.split('/')[-1])
+        print(output_folder, os.path.join(output_folder, str(step)))
         os.makedirs(os.path.join(output_folder, str(step)), exist_ok=True)
         output_file = os.path.join(output_folder, str(step), 'test-parsed-preds.txt')
 
