@@ -77,10 +77,10 @@ fi
 #    --evaluate=True \
 #    --total_steps=1
 
-mkdir "${RESULT_DIR}/parsed/"
-mkdir "${RESULT_DIR}/parsed/${EXP_NAME}"
+mkdir -p "${RESULT_DIR}/parsed/"
+mkdir -p "${RESULT_DIR}/parsed/${EXP_NAME}"
 # Parse the outs
 python3 parse_outs.py --exp-folder="${RESULT_DIR}/${EXP_NAME}/test" --steps=0 --out-folder="${RESULT_DIR}/parsed/${EXP_NAME}"
 
 # Move logs to the parsed folder
-cp -r "${RESULT_DIR}/${EXP_NAME}/test/logs.txt" "${RESULT_DIR}/parsed/${EXP_NAME}"
+cp -r "${RESULT_DIR}/${EXP_NAME}/test/logs.txt" "${RESULT_DIR}/parsed/${EXP_NAME}/logs.txt"
