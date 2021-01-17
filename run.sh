@@ -61,7 +61,7 @@ else
 
 fi
 
- Evaluate
+# Evaluate
 CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
     --experiment_base_dir="${RESULT_DIR}/${EXP_NAME}" \
     --experiment_name="test" \
