@@ -56,8 +56,8 @@ else
         --train_memtrace="${TRAIN_TRACE}" \
         --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_valid.csv" \
         --total_steps=20001 \
-        --save_freq=10000 \
-        --full_eval_freq=10000
+        --save_freq=5000 \
+        --full_eval_freq=5000
 
 fi
 
