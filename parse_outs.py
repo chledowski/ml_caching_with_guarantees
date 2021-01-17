@@ -34,7 +34,7 @@ def parse_outs(exp_folder, steps, output_folder):
         # output_folder = os.path.join(outf, exp_folder.split('/')[-1])
         print(output_folder, os.path.join(output_folder, str(step)))
         os.makedirs(os.path.join(output_folder, str(step)), exist_ok=True)
-        output_file = os.path.join(output_folder, str(step), 'test-parsed-preds.txt')
+        output_file = os.path.join(output_folder, str(step), 'test-parsed-preds')
 
         # print(111, step, pred_file, evict_file, output_folder, output_file)
         pred_reader = reader(pred_file)
