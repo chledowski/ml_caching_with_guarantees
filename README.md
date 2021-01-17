@@ -8,7 +8,7 @@ To avoid problems with reproduction, we have saved all the traces used in our wo
  on to the `./cache_replacement/policy_learning/cache/traces/` folder.
  
 ## Setting up the environment
-This project uses `python3`. Please install the required packages with
+This project uses `python3.7`. Please install the required packages with
   
   `pip install -r requirements.txt`
    
