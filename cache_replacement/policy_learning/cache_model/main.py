@@ -522,8 +522,11 @@ def main(_):
                             print(3, hit_rate_logs)
                             log_hit_rates(
                                 tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
+                            evaluate(policy_model, oracle_valid_data[-eval_size:], step,
+                                     "off_policy_valid" + suffix, tb_writer, predictions_dir)
                             return
-                        evaluate(policy_model, oracle_valid_data[-eval_size:], step,
+                        else:
+                            evaluate(policy_model, oracle_valid_data[-eval_size:], step,
                                  "off_policy_valid" + suffix, tb_writer, predictions_dir)
                         # train_data is defined in the loop, but evaluate_helper is only
                         # called in the same loop iteration.
@@ -547,21 +550,21 @@ def main(_):
                         #     hit_rate_logs["cache_hit_rate/train" + suffix] = [(step, hit_rates)]
                         # Use oracle scores, since eviction trace in log_evaluate_stats will
                         # log with on-policy scores.
-                        on_policy_valid_data, hit_rates = next(measure_cache_hit_rate(
-                            FLAGS.valid_memtrace, cache_config, policy_model,
-                            schedules.ConstantSchedule(1), get_step,
-                            os.path.join(
-                                evict_trace_dir, "valid{}-{}.txt".format(suffix, step)),
-                            max_examples=eval_size))
-                        log_hit_rates(
-                            tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
-                        if "cache_hit_rate/valid" + suffix in hit_rate_logs:
-                            hit_rate_logs["cache_hit_rate/valid" + suffix].append((step, hit_rates))
-                        else:
-                            hit_rate_logs["cache_hit_rate/valid" + suffix] = [(step, hit_rates)]
-                        print(33, hit_rate_logs)
-                        evaluate(policy_model, on_policy_valid_data[-eval_size:], step,
-                                 "on_policy_valid" + suffix, tb_writer, predictions_dir)
+                            on_policy_valid_data, hit_rates = next(measure_cache_hit_rate(
+                                FLAGS.valid_memtrace, cache_config, policy_model,
+                                schedules.ConstantSchedule(1), get_step,
+                                os.path.join(
+                                    evict_trace_dir, "valid{}-{}.txt".format(suffix, step)),
+                                max_examples=eval_size))
+                            log_hit_rates(
+                                tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
+                            if "cache_hit_rate/valid" + suffix in hit_rate_logs:
+                                hit_rate_logs["cache_hit_rate/valid" + suffix].append((step, hit_rates))
+                            else:
+                                hit_rate_logs["cache_hit_rate/valid" + suffix] = [(step, hit_rates)]
+                            print(33, hit_rate_logs)
+                            evaluate(policy_model, on_policy_valid_data[-eval_size:], step,
+                                     "on_policy_valid" + suffix, tb_writer, predictions_dir)
 
                     if FLAGS.evaluate:
                         evaluate_helper(len(oracle_valid_data), "_full", hit_rate_logs)
