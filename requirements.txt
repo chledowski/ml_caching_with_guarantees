@@ -9,7 +9,7 @@ Click==7.0
 cloudpickle==1.2.0
 Cython==0.29.15
 future==0.18.2
-gast==0.2.2
+gast==0.3.3
 glfw==1.10.1
 google-auth==1.11.2
 google-auth-oauthlib==0.4.1
