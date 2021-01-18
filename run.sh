@@ -84,3 +84,5 @@ python3 parse_outs.py --exp-folder="${RESULT_DIR}/${EXP_NAME}/test" --steps=0 --
 
 # Move logs to the parsed folder
 cp -r "${RESULT_DIR}/${EXP_NAME}/test/logs.txt" "${RESULT_DIR}/parsed/${EXP_NAME}/logs.txt"
+cp -r "${RESULT_DIR}/${EXP_NAME}/test/tensorboard" "${RESULT_DIR}/parsed/${EXP_NAME}/tensorboard_test"
+cp -r "${RESULT_DIR}/${EXP_NAME}/tensorboard" "${RESULT_DIR}/parsed/${EXP_NAME}/tensorboard"
