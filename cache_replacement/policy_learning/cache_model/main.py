@@ -366,8 +366,8 @@ def measure_cache_hit_rate(
                              [hit_rates[-1]])
                 yield data, hit_rates
 
-        logging.info("Number of unique addresses: %d", len(addresses))
-        logging.info("Number of unique pcs: %d", len(pcs))
+        # logging.info("Number of unique addresses: %d", len(addresses))
+        # logging.info("Number of unique pcs: %d", len(pcs))
 
 
 def log_hit_rates(tb_writer, tb_key, hit_rates, step):
