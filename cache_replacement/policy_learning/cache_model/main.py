@@ -456,7 +456,7 @@ def main(_):
             print(data['cache_hit_rate/valid_full'])
             best_hit_rate = 0
             best_ckpt = -1
-            for step, hit_rate in data['cache_hit_rate/valid_full']:
+            for step, hit_rate in data['cache_hit_rate/valid_full'][1:]:
                 if hit_rate[0] >= best_hit_rate:
                     best_ckpt = f'{step}.ckpt'
                     best_hit_rate = hit_rate[0]
