@@ -19,7 +19,7 @@ Afterwards, please install OpenAI baselines with
 ## Training models with evaluation and parsing args
 To run training, use this command:
 
-```bash run.sh <DATASET> <DEVICE> <FRACTION> <DAGGER> <RESULT_DIR>```
+```bash run.sh <DATASET> <DEVICE> <FRACTION> <DAGGER> <RESULT_DIR> <STEPS> <SAVE_EVAL_FREQ>```
 
 where:
 - DATASET - the name of used dataset (do not forget to download all three splits: train, valid, test)
@@ -27,10 +27,12 @@ where:
 - FRACTION - the fratcion of the train set to use (eg. `1`, `0.01`)
 - DAGGER (`True` or `False`) - whether to use DAgger
 - RESULT_DIR - data folder
+- STEPS - number of training steps
+- SAVE_EVAL_FREQ - frequency of evaluation/checkpoint saving (should be at least 2x smaller than STEPS)
 
 For example:
 
-```bash run.sh astar 0 0.33 True ./results```
+```bash run.sh astar 0 0.33 True ./results 20000 5000```
 
 This example script will do the following:
 * Train a Parrot model with DAgger on 33% of the astar dataset, and several things save to the `./results/astar__dagger=true__fraction=0.33` folder:
