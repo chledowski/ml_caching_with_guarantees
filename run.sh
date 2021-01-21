@@ -28,7 +28,7 @@ else
 fi
 
 if [ "${DAGGER}" == "True" ]; then
-    EXP_NAME="${DATASET}__dagger=true__fraction=${FRACTION}"
+    EXP_NAME="${DATASET}__dagger=true__fraction=${FRACTION}_${STEPS}"
 
     CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
         --experiment_base_dir="${RESULT_DIR}" \
@@ -44,7 +44,7 @@ if [ "${DAGGER}" == "True" ]; then
         --full_eval_freq="${SAVE_EVAL_FREQ}"
 
 else
-    EXP_NAME="${DATASET}__dagger=false__fraction=${FRACTION}"
+    EXP_NAME="${DATASET}__dagger=false__fraction=${FRACTION}_${STEPS}"
     CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
         --experiment_base_dir="${RESULT_DIR}" \
         --experiment_name="${EXP_NAME}" \
