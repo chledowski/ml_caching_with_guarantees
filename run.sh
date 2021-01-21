@@ -64,16 +64,16 @@ else
 fi
 
 # Evaluate
-#CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
-#    --experiment_base_dir="${RESULT_DIR}/${EXP_NAME}" \
-#    --experiment_name="test" \
-#    --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
-#    --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
-#    --model_bindings="address_embedder.max_vocab_size=5000" \
-#    --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_test.csv" \
-#    --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_test.csv" \
-#    --evaluate=True \
-#    --total_steps=1
+CUDA_VISIBLE_DEVICES=${DEVICE} python3 -m cache_replacement.policy_learning.cache_model.main \
+    --experiment_base_dir="${RESULT_DIR}/${EXP_NAME}" \
+    --experiment_name="test" \
+    --cache_configs="cache_replacement/policy_learning/cache/configs/default.json" \
+    --model_bindings="loss=[\"ndcg\", \"reuse_dist\"]" \
+    --model_bindings="address_embedder.max_vocab_size=5000" \
+    --train_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_test.csv" \
+    --valid_memtrace="cache_replacement/policy_learning/cache/traces/${DATASET}_test.csv" \
+    --evaluate=True \
+    --total_steps=1
 
 mkdir -p "${RESULT_DIR}/parsed/"
 mkdir -p "${RESULT_DIR}/parsed/${EXP_NAME}"
