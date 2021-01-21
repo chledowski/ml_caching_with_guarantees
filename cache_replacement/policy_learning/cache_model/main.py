@@ -522,8 +522,8 @@ def main(_):
                             print(3, hit_rate_logs)
                             log_hit_rates(
                                 tb_writer, "cache_hit_rate/valid" + suffix, hit_rates, step)
-                            evaluate(policy_model, oracle_valid_data[-eval_size:], step,
-                                     "off_policy_valid" + suffix, tb_writer, predictions_dir)
+                            evaluate(policy_model, on_policy_valid_data[-eval_size:], step,
+                                     "on_policy_valid" + suffix, tb_writer, predictions_dir)
                             return
                         else:
                             evaluate(policy_model, oracle_valid_data[-eval_size:], step,

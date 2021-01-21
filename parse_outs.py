@@ -28,7 +28,7 @@ def parse_outs(exp_folder, steps, output_folder):
 
     for step in step_list:
 
-        pred_file = os.path.join(exp_folder, 'predictions', f'off_policy_valid_full-{step}.txt')
+        pred_file = os.path.join(exp_folder, 'predictions', f'on_policy_valid_full-{step}.txt')
         evict_file = os.path.join(exp_folder, 'evictions', f'valid_full-{step}.txt')
         print(f"Parsing {pred_file} and {evict_file}.")
         # output_folder = os.path.join(outf, exp_folder.split('/')[-1])
