@@ -33,17 +33,29 @@ ALGORITHMS_PRED_NEXT = (
   algorithms.LV_PredMarker, # TODO: Tune parameter gamma
   # algorithms.Combrand_lambda((algorithms.Marker,algorithms.FollowPred)),
   algorithms.Rohatgi_LMarker,
+  # algorithms.LNonMarker(True, 0.1),
   algorithms.LNonMarker(True, 0.01),
+  # algorithms.LNonMarker(True, 0.001),
+  # algorithms.LNonMarker(False, 0.1),
   algorithms.LNonMarker(False, 0.01),
+  # algorithms.LNonMarker(False, 0.001),
+
+  # algorithms.BlindOracle(True, 0.1),
   algorithms.BlindOracle(True, 0.01),
+  # algorithms.BlindOracle(True, 0.001),
+  # algorithms.BlindOracle(False, 0.1),
   algorithms.BlindOracle(False, 0.01),
-  # TODO: Tune parameters
+  # algorithms.BlindOracle(False, 0.001),
 )
 
 ALGORITHMS_PRED_CACHE = (
   algorithms.ACEPS_TrustDoubt,
+  # algorithms.RobustFTP(True, 0.1),
   algorithms.RobustFTP(True, 0.01),
+  # algorithms.RobustFTP(True, 0.001),
+  # algorithms.RobustFTP(False, 0.1),
   algorithms.RobustFTP(False, 0.01),
+  # algorithms.RobustFTP(False, 0.001),
 )
 
 @functools.lru_cache()
@@ -209,6 +221,10 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
     print(('%' + str(MAX_LABEL_LEN) + 's: %0.2fs') % (label, time))
   # aux_time = timer() - start_aux - sum(total_times)
   # print('Aux time: %0.2fs' % aux_time)
+
+  print()
+  print('dataset,' + ','.join(LABELS))
+  print(filepath + ',' + ','.join(map(str,total_competitive_ratios)))
     
   return total_costs
 
