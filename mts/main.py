@@ -3,6 +3,7 @@
 import algorithms
 
 import argparse
+import functools
 import itertools
 import json
 import matplotlib.pyplot as plt
@@ -38,6 +39,7 @@ ALGORITHMS_PRED_CACHE = (
   algorithms.LazyTrustDoubt,
 )
 
+@functools.lru_cache()
 def LoadObj(filepath):
   with open(filepath, 'rb') as f:
     return pickle.load(f)
