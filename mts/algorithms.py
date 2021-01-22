@@ -191,7 +191,7 @@ def Marker(requests, k, pred=[]):
 # algorithm from Lykouris & Vassilvitsky (https://dblp.org/rec/conf/icml/LykourisV18.html)
 # named L&V in the paper
 PRED_MARKER_GAMMA = 1.
-def PredMarker(requests, k, pred):
+def LV_PredMarker(requests, k, pred):
   Hk = 1.
   for i in range(2, k+1):
     Hk += 1/i
@@ -242,7 +242,7 @@ def PredMarker(requests, k, pred):
       
 # Algorithm from Rohatgi (https://doi.org/10.1137/1.9781611975994.112)
 # weaker competitive ratio than LNonMarker
-def LMarker(requests, k, pred):
+def Rohatgi_LMarker(requests, k, pred):
   cache = [None] * k
   unmarked = []
   cache_preds = [-1] * k
@@ -440,7 +440,7 @@ def TrustDoubt(requests, k, pred):
 
 
 # Lazy-fication of the above algorithm. This is the algorithm that we consider.
-def LazyTrustDoubt(requests, k, pred):
+def ACEPS_TrustDoubt(requests, k, pred):
   goal = TrustDoubt(requests, k, pred)
   cache = [None]*k
   history = [tuple(cache),]
@@ -560,9 +560,24 @@ def Combdet_lambda(algs, gamma=0.01):
   return algorithm
 
 # Rohatgi's best algorithm
-def LNonMarker(requests, k, pred):
-  return Combine_det(requests, k, pred, (LNonMarker_nonrobust, Marker))
-  
+# def LNonMarker(requests, k, pred):
+#   return Combine_det(requests, k, pred, (LNonMarker_nonrobust, Marker))
+def LNonMarker(randomized=True, parameter=0.01):
+  algorithm = (Combrand_lambda if randomized else Combdet_lambda)((LNonMarker_nonrobust, Marker), parameter)
+  algorithm.__name__ = 'Rohatgi_LNonMarker%s[%f]' % ('R' if randomized else 'D', parameter)
+  return algorithm
+
+def BlindOracle(randomized=True, parameter=0.01):
+  algorithm = (Combrand_lambda if randomized else Combdet_lambda)((FollowPred, Marker if randomized else LRU), parameter)
+  algorithm.__name__ = 'Wei_BlindOracle%s[%f]' % ('R' if randomized else 'D', parameter)
+  return algorithm
+
+def RobustFTP(randomized=True, parameter=0.01):
+  algorithm = (Combrand_lambda if randomized else Combdet_lambda)((FollowPredCache, Marker), parameter)
+  algorithm.__name__ = 'ACEPS_RobustFollow%s[%f]' % ('R' if randomized else 'D', parameter)
+  return algorithm
+
+
 # #################### Combining schemes end here ####################
 
 

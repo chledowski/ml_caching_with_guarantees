@@ -23,20 +23,26 @@ ALGORITHMS_ONLINE = (
   algorithms.OPTMarking,
   algorithms.Marker,
   algorithms.Rand,
-  algorithms.Combrand_lambda((algorithms.Marker,algorithms.LRU)),
+  # algorithms.Combrand_lambda((algorithms.Marker,algorithms.LRU)),
 )
 
 ALGORITHMS_PRED_NEXT = (
   algorithms.FollowPred,
-  algorithms.FollowPredMarking,
-  algorithms.PredMarker,
-  algorithms.Combrand_lambda((algorithms.Marker,algorithms.FollowPred)),
-  algorithms.LMarker,
-  algorithms.LNonMarker,
+  # algorithms.FollowPredMarking,
+  algorithms.LV_PredMarker, # TODO: Tune parameter gamma
+  # algorithms.Combrand_lambda((algorithms.Marker,algorithms.FollowPred)),
+  algorithms.Rohatgi_LMarker,
+  algorithms.LNonMarker(True, 0.01),
+  algorithms.LNonMarker(False, 0.01),
+  algorithms.BlindOracle(True, 0.01),
+  algorithms.BlindOracle(False, 0.01),
+  # TODO: Tune parameters
 )
 
 ALGORITHMS_PRED_CACHE = (
-  algorithms.LazyTrustDoubt,
+  algorithms.ACEPS_TrustDoubt,
+  algorithms.RobustFTP(True, 0.01),
+  algorithms.RobustFTP(False, 0.01),
 )
 
 @functools.lru_cache()
@@ -84,26 +90,26 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
   LABELS += ['ParrotCache']
 
   PREDICTORS_NEXT = (
-    algorithms.PredLRU,  # LRU predictions
-    algorithms.PredPLECO_BK,  # PLECO predictions, designed for the BK dataset
-    algorithms.PredPopularity,  # simple ad-hoc POPU predictions
+    # algorithms.PredLRU,  # LRU predictions
+    # algorithms.PredPLECO_BK,  # PLECO predictions, designed for the BK dataset
+    # algorithms.PredPopularity,  # simple ad-hoc POPU predictions
     algorithms.PredParrot,
   )
-  LABELS += [algorithm.__name__ + '+LRU' for algorithm in ALGORITHMS_PRED_NEXT]
-  LABELS += [algorithm.__name__ + '+PLECO' for algorithm in ALGORITHMS_PRED_NEXT]
-  LABELS += [algorithm.__name__ + '+Popu' for algorithm in ALGORITHMS_PRED_NEXT]
+  # LABELS += [algorithm.__name__ + '+LRU' for algorithm in ALGORITHMS_PRED_NEXT]
+  # LABELS += [algorithm.__name__ + '+PLECO' for algorithm in ALGORITHMS_PRED_NEXT]
+  # LABELS += [algorithm.__name__ + '+Popu' for algorithm in ALGORITHMS_PRED_NEXT]
   LABELS += [algorithm.__name__ + '+ParrotNext' for algorithm in ALGORITHMS_PRED_NEXT]
 
   PREDICTORS_CACHE = (
-    lambda requests: algorithms.FollowPred(requests, k, algorithms.PredLRU(requests)),
-    lambda requests: algorithms.FollowPred(requests, k, algorithms.PredPLECO_BK(requests)),
-    lambda requests: algorithms.FollowPred(requests, k, algorithms.PredPopularity(requests)),
-#    lambda requests: algorithms.FollowPred(requests, k, algorithms.PredParrot(requests)),
-    algorithms.PredParrot
+    # lambda requests: algorithms.FollowPred(requests, k, algorithms.PredLRU(requests)),
+    # lambda requests: algorithms.FollowPred(requests, k, algorithms.PredPLECO_BK(requests)),
+    # lambda requests: algorithms.FollowPred(requests, k, algorithms.PredPopularity(requests)),
+    # lambda requests: algorithms.FollowPred(requests, k, algorithms.PredParrot(requests)),
+    algorithms.PredParrot,
   )
-  LABELS += [algorithm.__name__ + '+LRU' for algorithm in ALGORITHMS_PRED_CACHE]
-  LABELS += [algorithm.__name__ + '+PLECO' for algorithm in ALGORITHMS_PRED_CACHE]
-  LABELS += [algorithm.__name__ + '+Popu' for algorithm in ALGORITHMS_PRED_CACHE]
+  # LABELS += [algorithm.__name__ + '+LRU' for algorithm in ALGORITHMS_PRED_CACHE]
+  # LABELS += [algorithm.__name__ + '+PLECO' for algorithm in ALGORITHMS_PRED_CACHE]
+  # LABELS += [algorithm.__name__ + '+Popu' for algorithm in ALGORITHMS_PRED_CACHE]
   LABELS += [algorithm.__name__ + '+ParrotCache' for algorithm in ALGORITHMS_PRED_CACHE]
 
   total_costs = [[0 for _ in LABELS] for _ in range(num_runs)]
