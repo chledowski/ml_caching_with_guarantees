@@ -225,7 +225,10 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
   print()
   print('dataset,' + ','.join(LABELS))
   print(filepath + ',' + ','.join(map(str,total_competitive_ratios)))
-    
+  total_hit_rates = (total_requests - np.array(total_costs)) * (1.0 / total_requests)
+  total_hit_rates = np.mean(total_hit_rates, axis=0)
+  print(filepath + ',' + ','.join(map(str,total_hit_rates)))
+
   return total_costs
 
 
