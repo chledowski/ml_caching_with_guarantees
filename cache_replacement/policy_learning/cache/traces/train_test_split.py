@@ -46,6 +46,7 @@ if __name__ == "__main__":
                       1268, 1308, 1342, 1348, 1353, 1424, 1437, 1456, 1574,
                       1599, 1604, 1662, 1683, 1782, 1789, 1812, 1905, 1940,
                       1967, 1973]
+  PAPER_CACHE_SETS_v2 = [set+4 for set in PAPER_CACHE_SETS]
 
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -67,6 +68,7 @@ if __name__ == "__main__":
       "-b", "--batch_size", default=32,
       help=("Ensures that train.csv, valid.csv, and test.csv contain a number"
             " of accesses that is a multiple of this. Use 1 to avoid this."))
+  parser.add_argument('--set-v2', action='store_true')
   args = parser.parse_args()
 
   PREFIX = "_filter_traces"
@@ -82,6 +84,9 @@ if __name__ == "__main__":
   cache_bits = int(np.log2(args.cache_line_size))
   set_bits = int(np.log2(num_sets))
   num_lines = 0
+  if args.set_v2:
+      args.cache_sets = PAPER_CACHE_SETS_v2
+      print(f'Using v2 set: {PAPER_CACHE_SETS_v2}')
   accepted_cache_sets = set(args.cache_sets)
   with open("all.csv", "w") as write:
     with open(args.access_trace_filename, "r") as read:
