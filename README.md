@@ -4,7 +4,8 @@
 The cache replacement pipeline has been cloned and slightly differed from https://github.com/google-research/google-research/tree/master/cache_replacement.
 
 ## Getting the traces
-To avoid problems with reproduction, we have saved all the traces used in our work to [Dropbox](https://www.dropbox.com/sh/h9lsrxgmofl2oso/AABgLHNNmla2X2ipqTGiL9Oua?dl=0). To move forward, please copy the traces you would like to work
+To avoid problems with reproduction, we have saved all the traces used in our work to [Dropbox](https://www.dropbox.com/sh/nnhe916fzg3cfwx/AACKWJFx2Q3gc-JveYktj3GQa?dl=0). To move forward, please copy the traces you would like to
+ work
  on to the `./cache_replacement/policy_learning/cache/traces/` folder.
  
 ## Setting up the environment
@@ -44,3 +45,10 @@ This example script will do the following:
 * Evaluate the trained model on the test set, saving the results to `./results/astar__dagger=true__fraction=0.33/test` folder.
 * Create a `./results/parsed/astar__dagger=true__fraction=0.33` folder that will contain the crucial files (parsed outs + logs with scores)
 * Parse the evictions and predictions from the evaluation, to a more leightweight format.
+
+
+## Evaluating learning-augmented algorithms
+
+To evaluate the learning-augmented algorithms, do
+    
+    for i in <RESULT_DIR>/parsed/*/0/*.pkl; do python3 mts/main.py all -k16 -d64 -f $i | tail -n3 >> evaluated.csv; done
