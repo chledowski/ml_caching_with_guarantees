@@ -17,11 +17,13 @@ import tqdm
 from multiprocessing import Pool
 from timeit import default_timer as timer
 
+dupa = 0
+
 # OPT must be the first algorithm in this list
 ALGORITHMS_ONLINE = (
   algorithms.OPT,
   algorithms.LRU,
-  algorithms.OPTMarking,
+  # algorithms.OPTMarking,
   algorithms.Marker,
   algorithms.Rand,
   # algorithms.Combrand_lambda((algorithms.Marker,algorithms.LRU)),
@@ -73,18 +75,28 @@ def LoadRequests(filepath, dataset):
   return tuple(requests)
 
 def LoadParrotReuseDist(filepath, dataset):
+  global dupa
   parsed_dict = LoadObj(filepath)
   dataset_records = parsed_dict[list(parsed_dict.keys())[dataset]]
   reuse_distances = []
+  # print(123, len(dataset_records))
   for i in range(0, len(dataset_records)-1):
     request_address = dataset_records[i]['address']
     reuse_dist = -1
     next_cache_addresses = dataset_records[i+1]['cache_lines_address']
     next_cache_reuse_distances = dataset_records[i+1]['cache_lines_reuse_distance']
+    print(123, dataset_records[i+1])
+    print(next_cache_addresses, request_address)
     for j in range(0, len(next_cache_addresses)):
-      if next_cache_addresses[j] == request_address:
+      if str(next_cache_addresses[j]) == str(request_address):
         reuse_dist = next_cache_reuse_distances[j]
-    assert(reuse_dist != -1)
+        print('ok')
+    # print(i)
+    # if reuse_dist != -1:
+    #   print('')
+    # else:
+    #   print('ok')
+    # assert(reuse_dist != -1)
     reuse_distances.append(pow(2.0, reuse_dist))
   return tuple(reuse_distances)
 
@@ -99,7 +111,6 @@ def LoadParrotCachePreds(filepath, dataset, k):
   return history
 
 LABELS = [algorithm.__name__ for algorithm in ALGORITHMS_ONLINE]
-LABELS += ['ParrotCache']
 
 PREDICTORS_NEXT = (
   # algorithms.PredLRU,  # LRU predictions
@@ -119,6 +130,8 @@ PREDICTORS_CACHE = (
   # lambda requests: algorithms.FollowPred(requests, k, algorithms.PredParrot(requests)),
   algorithms.PredParrot,
 )
+
+LABELS += ['ParrotCache']
 # LABELS += [algorithm.__name__ + '+LRU' for algorithm in ALGORITHMS_PRED_CACHE]
 # LABELS += [algorithm.__name__ + '+PLECO' for algorithm in ALGORITHMS_PRED_CACHE]
 # LABELS += [algorithm.__name__ + '+Popu' for algorithm in ALGORITHMS_PRED_CACHE]
@@ -140,8 +153,6 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
     algorithms.VerifyOutput(requests, k, output)
     costs.append(algorithms.Cost(output))
 
-  costs.append(algorithms.Cost(parrot_cache))
-
   for predictor in PREDICTORS_NEXT:
     if predictor == algorithms.PredParrot:
       reuse_dists = LoadParrotReuseDist(filepath, dataset)
@@ -155,6 +166,8 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
       times.append(timer() - start)
       algorithms.VerifyOutput(requests, k, output)
       costs.append(algorithms.Cost(output))
+
+  costs.append(algorithms.Cost(parrot_cache))
 
   for predictor in PREDICTORS_CACHE:
     if predictor == algorithms.PredParrot:
@@ -408,3 +421,4 @@ def main():
 
 if __name__ == '__main__':
   main()
+  print(dupa)

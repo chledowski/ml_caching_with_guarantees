@@ -66,6 +66,10 @@ flags.DEFINE_string(
     "False",
     "Whether to use random weight while evaluating")
 flags.DEFINE_string(
+    "eval_ckpt",
+    "False",
+    "Specify to use a specific ckpt to eval")
+flags.DEFINE_string(
     "train_memtrace",
     "cache_replacement/policy_learning/cache/traces/omnetpp_train.csv",
     "Path to the training memory trace.")
@@ -456,19 +460,23 @@ def main(_):
         if FLAGS.random_weights != 'False':
             print(f"Evaluating with random model!")
         else:
-            print(f"Picking the best checkpoint by checking {os.path.join(FLAGS.experiment_base_dir, f'logs.txt')}")
-            with open(os.path.join(FLAGS.experiment_base_dir, f'logs.txt')) as json_file:
-                print(json_file)
-                data = json.load(json_file)
-                print(data['cache_hit_rate/valid_full'])
-                best_hit_rate = 0
-                best_ckpt = -1
-                for step, hit_rate in data['cache_hit_rate/valid_full'][1:]:
-                    print(123, step, hit_rate)
-                    if hit_rate[0] >= best_hit_rate:
-                        best_ckpt = f'{step}.ckpt'
-                        best_hit_rate = hit_rate[0]
-                print(best_ckpt, best_hit_rate)
+            if FLAGS.eval_ckpt != 'False':
+                print(f"Picking the checkpoint: {FLAGS.eval_ckpt}")
+                best_ckpt = f'{FLAGS.eval_ckpt}.ckpt'
+            else:
+                print(f"Picking the best checkpoint by checking {os.path.join(FLAGS.experiment_base_dir, f'logs.txt')}")
+                with open(os.path.join(FLAGS.experiment_base_dir, f'logs.txt')) as json_file:
+                    print(json_file)
+                    data = json.load(json_file)
+                    print(data['cache_hit_rate/valid_full'])
+                    best_hit_rate = 0
+                    best_ckpt = -1
+                    for step, hit_rate in data['cache_hit_rate/valid_full'][1:]:
+                        print(123, step, hit_rate)
+                        if hit_rate[0] >= best_hit_rate:
+                            best_ckpt = f'{step}.ckpt'
+                            best_hit_rate = hit_rate[0]
+                    print(best_ckpt, best_hit_rate)
             print(f"Loading {best_ckpt}...")
             ckpt = torch.load(os.path.join(FLAGS.experiment_base_dir, 'checkpoints', best_ckpt))
             policy_model.load_state_dict(ckpt)
