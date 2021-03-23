@@ -17,8 +17,6 @@ import tqdm
 from multiprocessing import Pool
 from timeit import default_timer as timer
 
-dupa = 0
-
 # OPT must be the first algorithm in this list
 ALGORITHMS_ONLINE = (
   algorithms.OPT,
@@ -75,29 +73,19 @@ def LoadRequests(filepath, dataset):
   return tuple(requests)
 
 def LoadParrotReuseDist(filepath, dataset):
-  global dupa
   parsed_dict = LoadObj(filepath)
   dataset_records = parsed_dict[list(parsed_dict.keys())[dataset]]
   reuse_distances = []
-  # print(123, len(dataset_records))
   for i in range(0, len(dataset_records)-1):
     request_address = dataset_records[i]['address']
     reuse_dist = -1
     next_cache_addresses = dataset_records[i+1]['cache_lines_address']
     next_cache_reuse_distances = dataset_records[i+1]['cache_lines_reuse_distance']
-    print(123, dataset_records[i+1])
-    print(next_cache_addresses, request_address)
     for j in range(0, len(next_cache_addresses)):
-      if str(next_cache_addresses[j]) == str(request_address):
+      if next_cache_addresses[j] == request_address:
         reuse_dist = next_cache_reuse_distances[j]
-        print('ok')
-    # print(i)
-    # if reuse_dist != -1:
-    #   print('')
-    # else:
-    #   print('ok')
-    # assert(reuse_dist != -1)
     reuse_distances.append(pow(2.0, reuse_dist))
+    assert reuse_dist != -1
   return tuple(reuse_distances)
 
 def LoadParrotCachePreds(filepath, dataset, k):
@@ -421,4 +409,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-  print(dupa)
