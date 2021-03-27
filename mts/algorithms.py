@@ -105,6 +105,8 @@ def FollowPred(requests, k, pred, error_probability=0.0):
   # print(history)
   return history
 
+def FollowPredS(requests, k, pred, error_probability=0.0):
+  return FollowPred(requests, k, pred, error_probability), None
 
 # compute the optimal solution, by using previous functions
 def OPT(requests, k, pred=[]):
@@ -204,6 +206,10 @@ def LV_PredMarker(requests, k, pred):
   chain_reps = []
   history = [tuple(cache),]
   
+  # 0 - removed element with longest reuse distance
+  # 1 else
+  pred_usage = [0] * 2
+
   for t, request in enumerate(requests):  
     if request in cache:
       index_to_evict = cache.index(request)
@@ -230,14 +236,20 @@ def LV_PredMarker(requests, k, pred):
         else:
           index_to_evict = random.choice(unmarked)
         chain_reps[c] = cache[index_to_evict]      
-      
+    
+    if cache_preds[index_to_evict] == max(cache_preds):
+      pred_usage[0] += 1
+    else:
+      pred_usage[1] += 1
+
     cache[index_to_evict] = request
     cache_preds[index_to_evict] = pred[t]
     if index_to_evict in unmarked:
       unmarked.remove(index_to_evict)
     history.append(tuple(cache))
     
-  return history
+  print(f"marker pred %: {ToPercentages(pred_usage)[0]}")
+  return history, None # ToPercentages(pred_usage)
       
       
 # Algorithm from Rohatgi (https://doi.org/10.1137/1.9781611975994.112)
@@ -248,6 +260,10 @@ def Rohatgi_LMarker(requests, k, pred):
   cache_preds = [-1] * k
   stale = {}
   history = [tuple(cache),]
+
+  # 0 - removed element with longest reuse distance
+  # 1 else
+  pred_usage = [0] * 2
 
   for t, request in enumerate(requests):
     if request in cache:
@@ -262,12 +278,19 @@ def Rohatgi_LMarker(requests, k, pred):
         index_to_evict = random.choice(unmarked)
       else:
         index_to_evict = max((cache_preds[i],i) for i in unmarked)[1]
+
+    if cache_preds[index_to_evict] == max(cache_preds):
+      pred_usage[0] += 1
+    else:
+      pred_usage[1] += 1
+
     cache[index_to_evict] = request
     cache_preds[index_to_evict] = pred[t]
     if index_to_evict in unmarked:
       unmarked.remove(index_to_evict)
     history.append(tuple(cache))
-  return history
+  print(f"marker pred %: {ToPercentages(pred_usage)[0]}")
+  return (history, None) #ToPercentages(pred_usage))
 
 
 # Algorithm from Rohatgi (https://doi.org/10.1137/1.9781611975994.112)
@@ -281,6 +304,10 @@ def LNonMarker_nonrobust(requests, k, pred):
   evictions = {}
   phase_elements = []
 
+  # 0 - removed element with longest reuse distance
+  # 1 else
+  pred_usage = [0] * 2
+  
   for t, request in enumerate(requests):
     if request not in phase_elements:
       phase_elements.append(request)
@@ -304,12 +331,22 @@ def LNonMarker_nonrobust(requests, k, pred):
           index_to_evict = random.choice(unmarked)
       else:
         index_to_evict = max((cache_preds[i],i) for i in unmarked)[1]
+    
+    
+    if cache_preds[index_to_evict] == max(cache_preds):
+      pred_usage[0] += 1
+    else:
+      pred_usage[1] += 1
+    
     evictions[cache[index_to_evict]] = request
     cache[index_to_evict] = request
     cache_preds[index_to_evict] = pred[t]
     if index_to_evict in unmarked:
       unmarked.remove(index_to_evict)
     history.append(tuple(cache))
+
+
+  print(f"marker pred %: {ToPercentages(pred_usage)[0]}")
   return history
 
 
@@ -442,13 +479,41 @@ def TrustDoubt(requests, k, pred):
 # Lazy-fication of the above algorithm. This is the algorithm that we consider.
 def ACEPS_TrustDoubt(requests, k, pred):
   goal = TrustDoubt(requests, k, pred)
-  cache = [None]*k
-  history = [tuple(cache),]
+  cur_cache = [None]*k
+  history = [tuple(cur_cache),]
   last_used = [-1] * k
+  # print(f"req: {len(requests)}")
+  # print(f"pred: {len(pred)}")
+  follow_pred = [0] * 2 # 0 pred followed, 1 pred not followed
   for t, request in enumerate(requests):
-    cache = Lazy_update(cache, goal[t+1], request, last_used, t)
-    history.append(cache)
-  return history
+    new_cache = Lazy_update(cur_cache, goal[t+1], request, last_used, t)
+    cache_removed = Removed(cur_cache, new_cache)
+    pred_removed = Removed(pred[t+1], pred[t])
+    if cache_removed is not None:
+      if cache_removed in pred[t+1]:
+        follow_pred[1] += 1 # removed sth that is in pred cache, so not following pred
+      else:
+        follow_pred[0] += 1
+    elif pred_removed is not None:
+      if pred_removed in new_cache:
+        follow_pred[1] += 1 # pred removed sth that is in our cache, so we're not following pred here
+      else:
+        follow_pred[0] += 1
+    history.append(new_cache)
+    cur_cache = new_cache
+  return history, ToPercentages(follow_pred)
+
+# returns element that was removed from cur_cache or None if caches are identical
+def Removed(cur_cache, new_cache):
+  diff = ((set(cur_cache)-{None})-(set(new_cache)-{None}))
+  assert len(diff) <= 1
+  if len(diff) == 1:
+    return list(diff)[0]
+  return None
+
+def ToPercentages(usage):
+  s = sum(usage)
+  return [x * 100.0 / s for x in usage]
 
 def FollowPredCache(requests, k, pred):
   return pred
@@ -484,7 +549,28 @@ def Lazy_update(cache1, cache2, request, last_used, t):
       index_to_evict = cache.index(random.choice(candidates))
   cache[index_to_evict] = request
   return cache
-  
+
+class Stats:
+  def __init__(self):
+    self.cur_alg = 0
+    self.switch_hist = []
+    self.pred_use = []
+    self.pred_use_start = 0
+
+  def record(self, new_alg, t):
+    if new_alg != self.cur_alg:
+      self.switch_hist.append(t)
+      if self.cur_alg == 0:
+        self.pred_use.append(tuple([self.pred_use_start, t-1]))
+      else:
+        self.pred_use_start = t
+      self.cur_alg = new_alg
+
+  def finish_record(self, l):
+    if self.cur_alg == 0:
+      self.pred_use.append(tuple([self.pred_use_start, l]))
+      
+
 
 # Combine randomly 2 algorithms
 # algs: list of algorithms to combine
@@ -498,7 +584,10 @@ def Combine_rand(requests, k, pred, algs, epsilon=0.01, LAZY=True):
   history = [tuple([None] * k),]
   last_used = [-1] * k
   cur_alg = random.randrange(0,len(algs))
-    
+  
+  switch_count = 0
+  usage = [0] * m
+  s = Stats()
   for t, request in enumerate(requests):
     loss = list(map(lambda x: Cache_cost(x[t],x[t+1]), histories))
     new_weights = [w*(1-epsilon)**l for w,l in zip(weights,loss)]
@@ -509,6 +598,9 @@ def Combine_rand(requests, k, pred, algs, epsilon=0.01, LAZY=True):
     if (new_probs[cur_alg] < probs[cur_alg]):
       cur_alg =  1-cur_alg if (random.random() > (probs[cur_alg] - new_probs[cur_alg])/probs[cur_alg]) else cur_alg
 
+    s.record(cur_alg, t)
+    usage[cur_alg] += 1
+    
     probs = new_probs
     weights = new_weights
     weights = probs # prevents floating point errors: always normalize the weights
@@ -517,8 +609,36 @@ def Combine_rand(requests, k, pred, algs, epsilon=0.01, LAZY=True):
       history.append(tuple(Lazy_update(history[t], histories[cur_alg][t+1], request, last_used, t)))
     else:
       history.append(histories[cur_alg][t+1])
-    
-  return history
+  
+  s.finish_record(len(requests))
+  print(f"switch count: {len(s.switch_hist)}")
+  # usage = [100.0 * x / len(requests) for x in usage]
+  # print(f"pred: {usage[0]}")
+  print(f"pred_use: {s.pred_use}")
+
+  fig, ax = plt.subplots()
+
+  x = []
+  y = []
+  for seg in s.pred_use:
+#    ax.plot([seg[0]], [0], 'bo')
+    ax.plot(seg, [0, 0], 'b-')
+  for (seg1, seg2) in zip(s.pred_use, s.pred_use[1:]):
+#    ax.plot([seg1[1]], [1], 'ro')
+    ax.plot([seg1[1], seg2[0]], [1, 1], 'r-')
+    """if(seg[0] > 0):
+      x.append(seg[0] - 1)
+      y.append(1)
+    x.append(seg[0])
+    y.append(0)
+    if(seg[1] > seg[0]):
+      x.append(seg[1])
+      y.append(0)
+    x.append(seg[1] + 1)
+    y.append(1)"""
+
+  plt.show()
+  return history, ToPercentages(usage)
 
 
 # Combine deterministically 2 algorithms
@@ -533,17 +653,49 @@ def Combine_det(requests, k, pred, algs, gamma=1.0, LAZY=True):
   history = [tuple([None] * k),]
   last_used = [-1] * k
   
+  usage = [0] * m
+  s = Stats()
   for t, request in enumerate(requests):
     costs = list(map(add, costs , list(map( lambda x: Cache_cost(x[t], x[t+1]), histories)))) # add the new cost for each algorithm
+    #old_cur_alg = cur_alg
     while (costs[cur_alg] > bound):
       cur_alg = (cur_alg + 1) % m
       bound *= 1. + gamma / (m - 1)
+    usage[cur_alg] += 1
+    s.record(cur_alg, t)
     if (LAZY): 
       history.append(tuple(Lazy_update(history[t], histories[cur_alg][t+1], request, last_used, t)))
     else:
       history.append(histories[cur_alg][t+1])
+  s.finish_record(len(requests))
+  # usage = [100.0 * x / len(requests) for x in usage]
+  print(f"switch_count: {len(s.switch_hist)}")
+  # print(f"s_switch_hist: {s.switch_hist}")
+  print(f"pred_use: {s.pred_use}")
 
-  return history
+  fig, ax = plt.subplots()
+
+  x = []
+  y = []
+  for seg in s.pred_use:
+#    ax.plot([seg[0]], [0], 'bo')
+    ax.plot(seg, [0, 0], 'b-')
+  for (seg1, seg2) in zip(s.pred_use, s.pred_use[1:]):
+#    ax.plot([seg1[1]], [1], 'ro')
+    ax.plot([seg1[1], seg2[0]], [1, 1], 'r-')
+    """if(seg[0] > 0):
+      x.append(seg[0] - 1)
+      y.append(1)
+    x.append(seg[0])
+    y.append(0)
+    if(seg[1] > seg[0]):
+      x.append(seg[1])
+      y.append(0)
+    x.append(seg[1] + 1)
+    y.append(1)"""
+
+  plt.show()
+  return history, ToPercentages(usage)
 
 
 ### predefined combining schemes

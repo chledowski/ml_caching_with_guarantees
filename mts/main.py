@@ -21,35 +21,35 @@ from timeit import default_timer as timer
 ALGORITHMS_ONLINE = (
   algorithms.OPT,
   algorithms.LRU,
-  # algorithms.OPTMarking,
+  algorithms.OPTMarking,
   algorithms.Marker,
   algorithms.Rand,
   # algorithms.Combrand_lambda((algorithms.Marker,algorithms.LRU)),
 )
 
 ALGORITHMS_PRED_NEXT = (
-  algorithms.FollowPred,
+  #algorithms.FollowPredS,
   # algorithms.FollowPredMarking,
-  algorithms.LV_PredMarker, # TODO: Tune parameter gamma
+  #algorithms.LV_PredMarker, # TODO: Tune parameter gamma
   # algorithms.Combrand_lambda((algorithms.Marker,algorithms.FollowPred)),
-  algorithms.Rohatgi_LMarker,
+  #algorithms.Rohatgi_LMarker,
   # algorithms.LNonMarker(True, 0.1),
-  algorithms.LNonMarker(True, 0.01),
+  #algorithms.LNonMarker(True, 0.01),
   # algorithms.LNonMarker(True, 0.001),
   # algorithms.LNonMarker(False, 0.1),
-  algorithms.LNonMarker(False, 0.01),
+  #algorithms.LNonMarker(False, 0.01),
   # algorithms.LNonMarker(False, 0.001),
 
   # algorithms.BlindOracle(True, 0.1),
-  algorithms.BlindOracle(True, 0.01),
+  #algorithms.BlindOracle(True, 0.01),
   # algorithms.BlindOracle(True, 0.001),
   # algorithms.BlindOracle(False, 0.1),
-  algorithms.BlindOracle(False, 0.01),
+  #algorithms.BlindOracle(False, 0.01),
   # algorithms.BlindOracle(False, 0.001),
 )
 
 ALGORITHMS_PRED_CACHE = (
-  algorithms.ACEPS_TrustDoubt,
+  #algorithms.ACEPS_TrustDoubt,
   # algorithms.RobustFTP(True, 0.1),
   algorithms.RobustFTP(True, 0.01),
   # algorithms.RobustFTP(True, 0.001),
@@ -84,8 +84,8 @@ def LoadParrotReuseDist(filepath, dataset):
     for j in range(0, len(next_cache_addresses)):
       if next_cache_addresses[j] == request_address:
         reuse_dist = next_cache_reuse_distances[j]
+    assert(reuse_dist != -1)
     reuse_distances.append(pow(2.0, reuse_dist))
-    assert reuse_dist != -1
   return tuple(reuse_distances)
 
 def LoadParrotCachePreds(filepath, dataset, k):
@@ -99,6 +99,7 @@ def LoadParrotCachePreds(filepath, dataset, k):
   return history
 
 LABELS = [algorithm.__name__ for algorithm in ALGORITHMS_ONLINE]
+LABELS += ['ParrotCache']
 
 PREDICTORS_NEXT = (
   # algorithms.PredLRU,  # LRU predictions
@@ -118,8 +119,6 @@ PREDICTORS_CACHE = (
   # lambda requests: algorithms.FollowPred(requests, k, algorithms.PredParrot(requests)),
   algorithms.PredParrot,
 )
-
-LABELS += ['ParrotCache']
 # LABELS += [algorithm.__name__ + '+LRU' for algorithm in ALGORITHMS_PRED_CACHE]
 # LABELS += [algorithm.__name__ + '+PLECO' for algorithm in ALGORITHMS_PRED_CACHE]
 # LABELS += [algorithm.__name__ + '+Popu' for algorithm in ALGORITHMS_PRED_CACHE]
@@ -132,6 +131,7 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
   #print(f'requests: {len(requests)}, dataset: {dataset}')
   costs = []
   times = []
+  all_stats = []
   parrot_cache = LoadParrotCachePreds(filepath, dataset, k)
 
   for algorithm in ALGORITHMS_ONLINE:
@@ -140,6 +140,8 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
     times.append(timer() - start)
     algorithms.VerifyOutput(requests, k, output)
     costs.append(algorithms.Cost(output))
+
+  costs.append(algorithms.Cost(parrot_cache))
 
   for predictor in PREDICTORS_NEXT:
     if predictor == algorithms.PredParrot:
@@ -150,12 +152,15 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
       predictions = predictor(requests)
     for algorithm in ALGORITHMS_PRED_NEXT:
       start = timer()
-      output = algorithm(requests, k, predictions)
+      print(f"{algorithm.__name__}")
+      output, stats = algorithm(requests, k, predictions)
+      if stats is not None:
+        print(f"pred usage %: {stats[0]}")
+      print()
       times.append(timer() - start)
       algorithms.VerifyOutput(requests, k, output)
       costs.append(algorithms.Cost(output))
-
-  costs.append(algorithms.Cost(parrot_cache))
+      all_stats.append(stats)
 
   for predictor in PREDICTORS_CACHE:
     if predictor == algorithms.PredParrot:
@@ -164,21 +169,28 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
       predictions = predictor(requests)
     for algorithm in ALGORITHMS_PRED_CACHE:
       start = timer()
-      output = algorithm(requests, k, predictions)
+      print(f"{algorithm.__name__}")
+      output, stats = algorithm(requests, k, predictions)
+      if stats is not None:
+        print(f"pred usage %: {stats[0]}")
+      print()
       times.append(timer() - start)
       algorithms.VerifyOutput(requests, k, output)
       costs.append(algorithms.Cost(output))
+      all_stats.append(stats)
 
   # if (costs[0] <= 0): # skip if OPT has no miss, ensures to never divide by zero
   #   continue
-  return run, costs, times
+  print("###################################################################################################################")
+  return run, costs, times, all_stats
 
 def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
   total_costs = [[0 for _ in LABELS] for _ in range(num_runs)]
   total_times = [0 for _ in LABELS]
+  total_pred = [0 for _ in LABELS]
   # start_aux = timer()
 
-  print(f'filepath: {filepath}')
+  # print(f'filepath: {filepath}')
   total_requests = 0
   for dataset in range(datasets):
     requests = LoadRequests(filepath, dataset)
@@ -187,8 +199,8 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
 
   # for run, dataset in tqdm.tqdm(list(itertools.product(range(num_runs), range(datasets)))):
 
-  with Pool() as pool:
-     for run, costs, times in pool.starmap(
+  with Pool(1) as pool:
+     for run, costs, times, stats in pool.starmap(
         SingleRunOfTryAllAlgorithmsAndPredictors, list(itertools.product((k,), (filepath,), range(num_runs), range(datasets)))):
       for i, cost in enumerate(costs):
         # uncomment the line below if you want to compute the average competitive
@@ -197,6 +209,14 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
         total_costs[run][i] += cost
       for i, time in enumerate(times):
         total_times[i] += time
+      for i, pred in enumerate(stats):
+        if pred is not None:
+          total_pred[i] += pred[0]
+      # print(f"stats: {stats}")
+      # print(f"total_pred: {total_pred}")
+      # print(f"len times: {len(times)}")
+      # print(f"len stats: {len(stats)}")
+      # print(f"len total_pred: {len(total_pred)}")
 
       # print(dataset, ', '.join(
       #   '%s: %0.3f' % (label, cost / costs[0])
@@ -217,19 +237,21 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
 #for label, c in zip(LABELS, total_costs[0]):
 #    print(('%' + str(MAX_LABEL_LEN) + 's: %d') % (label, c))
   print()
-  print('Total time:')
-  for label, time in zip(LABELS, total_times):
-    print(('%' + str(MAX_LABEL_LEN) + 's: %0.2fs') % (label, time))
+  # print('Total time:')
+  # for label, time in zip(LABELS, total_times):
+  #  print(('%' + str(MAX_LABEL_LEN) + 's: %0.2fs') % (label, time))
+
+  np_total_preds = np.array(total_pred) / datasets
+  #print('Total pred:')
+  #for label, pred in zip(LABELS, np_total_preds):
+  #  print(('%' + str(MAX_LABEL_LEN) + 's: %0.2f') % (label, pred))
   # aux_time = timer() - start_aux - sum(total_times)
   # print('Aux time: %0.2fs' % aux_time)
 
-  print()
-  print('dataset,' + ','.join(LABELS))
-  print(filepath + ',' + ','.join(map(str,total_competitive_ratios)))
-  total_hit_rates = (total_requests - np.array(total_costs)) * (1.0 / total_requests)
-  total_hit_rates = np.mean(total_hit_rates, axis=0)
-  print(filepath + ',' + ','.join(map(str,total_hit_rates)))
-
+  #print()
+  #print('dataset,' + ','.join(LABELS))
+  #print(filepath + ',' + ','.join(map(str,total_competitive_ratios)))
+    
   return total_costs
 
 
