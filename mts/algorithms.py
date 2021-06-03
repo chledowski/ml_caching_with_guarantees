@@ -236,7 +236,6 @@ def LV_PredMarker(requests, k, pred):
     if index_to_evict in unmarked:
       unmarked.remove(index_to_evict)
     history.append(tuple(cache))
-    
   return history
       
       
@@ -599,5 +598,12 @@ def Cost(history):
     cost += Cache_cost(cache_prev,cache_next) 
   return cost
 
+
+def PredUsage(history, predictions):
+  assert len(history) == len(predictions)
+  predu = 0
+  for cache_alg, cache_pred in zip(history, predictions):
+    predu += len(set(cache_alg) & set(cache_pred))
+  return predu
 
 # #################### Utilities end here ####################

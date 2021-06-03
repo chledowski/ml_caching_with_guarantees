@@ -8,7 +8,8 @@ import itertools
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle5 as pickle
+import pickle
+# import pickle5 as pickle
 import random
 import sys
 import time
@@ -132,6 +133,7 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
   #print(f'requests: {len(requests)}, dataset: {dataset}')
   costs = []
   times = []
+  predu = []
   parrot_cache = LoadParrotCachePreds(filepath, dataset, k)
 
   for algorithm in ALGORITHMS_ONLINE:
@@ -140,6 +142,7 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
     times.append(timer() - start)
     algorithms.VerifyOutput(requests, k, output)
     costs.append(algorithms.Cost(output))
+    predu.append(0)
 
   for predictor in PREDICTORS_NEXT:
     if predictor == algorithms.PredParrot:
@@ -148,14 +151,17 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
       predictions = algorithms.PredParrot(reuse_dists)
     else:
       predictions = predictor(requests)
+    ftp = algorithms.FollowPred(requests, k, predictions)
     for algorithm in ALGORITHMS_PRED_NEXT:
       start = timer()
       output = algorithm(requests, k, predictions)
       times.append(timer() - start)
       algorithms.VerifyOutput(requests, k, output)
       costs.append(algorithms.Cost(output))
+      predu.append(algorithms.PredUsage(output, ftp))
 
   costs.append(algorithms.Cost(parrot_cache))
+  predu.append(0)
 
   for predictor in PREDICTORS_CACHE:
     if predictor == algorithms.PredParrot:
@@ -168,14 +174,16 @@ def SingleRunOfTryAllAlgorithmsAndPredictors(k, filepath, run, dataset):
       times.append(timer() - start)
       algorithms.VerifyOutput(requests, k, output)
       costs.append(algorithms.Cost(output))
+      predu.append(algorithms.PredUsage(output, predictions))
 
   # if (costs[0] <= 0): # skip if OPT has no miss, ensures to never divide by zero
   #   continue
-  return run, costs, times
+  return run, costs, times, predu
 
 def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
   total_costs = [[0 for _ in LABELS] for _ in range(num_runs)]
   total_times = [0 for _ in LABELS]
+  total_predu = [0 for _ in LABELS]
   # start_aux = timer()
 
   print(f'filepath: {filepath}')
@@ -188,7 +196,7 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
   # for run, dataset in tqdm.tqdm(list(itertools.product(range(num_runs), range(datasets)))):
 
   with Pool() as pool:
-     for run, costs, times in pool.starmap(
+     for run, costs, times, predu in pool.starmap(
         SingleRunOfTryAllAlgorithmsAndPredictors, list(itertools.product((k,), (filepath,), range(num_runs), range(datasets)))):
       for i, cost in enumerate(costs):
         # uncomment the line below if you want to compute the average competitive
@@ -197,11 +205,14 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
         total_costs[run][i] += cost
       for i, time in enumerate(times):
         total_times[i] += time
+      for i, predu_ in enumerate(predu):
+        total_predu[i] += predu_
 
       # print(dataset, ', '.join(
       #   '%s: %0.3f' % (label, cost / costs[0])
       #   for label, cost in zip(LABELS, costs)))
 
+  total_predu = np.array(total_predu) / (total_requests * k * num_runs)
 
   total_competitive_ratios = np.array(total_costs)
   print(total_competitive_ratios[0])
@@ -217,6 +228,10 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
 #for label, c in zip(LABELS, total_costs[0]):
 #    print(('%' + str(MAX_LABEL_LEN) + 's: %d') % (label, c))
   print()
+  print('Pred usage:')
+  for label, predu in zip(LABELS, total_predu):
+    print(('%' + str(MAX_LABEL_LEN) + 's: %0.2f') % (label, predu))
+  print()
   print('Total time:')
   for label, time in zip(LABELS, total_times):
     print(('%' + str(MAX_LABEL_LEN) + 's: %0.2fs') % (label, time))
@@ -229,6 +244,7 @@ def TryAllAlgorithmsAndPredictors(k, filepath, datasets, num_runs=1):
   total_hit_rates = (total_requests - np.array(total_costs)) * (1.0 / total_requests)
   total_hit_rates = np.mean(total_hit_rates, axis=0)
   print(filepath + ',' + ','.join(map(str,total_hit_rates)))
+  print(filepath + ',' + ','.join(map(str,total_predu)))
 
   return total_costs
 
