@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams.update({'font.size': 10,})
 
 
