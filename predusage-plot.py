@@ -4,7 +4,7 @@ import numpy as np
 plt.rcParams.update({'font.size': 10,})
 
 
-with open('predusage-data.csv') as f:
+with open('predusage.csv') as f:
 	data = f.readlines()
 # algorithms = data[0].strip().split(',')[1:]
 ALGS = (5,6,7,8,9,10,12,13,14)
@@ -20,8 +20,8 @@ ubad = usages[np.logical_not(predictor_is_better)].flatten()
 rgood = normalized_ratios[predictor_is_better].flatten()
 ugood = usages[predictor_is_better].flatten()
 
-plt.scatter( ubad,  rbad, color='C1', label='Marker is better')
-plt.scatter(ugood, rgood, color='C2', label='Predictor is better')
+plt.scatter( ubad,  rbad, color='C1', marker='o', label='Marker is better')
+plt.scatter(ugood, rgood, color='C2', marker='*', label='Predictor is better')
 
 x = np.array([0, 1])
 
