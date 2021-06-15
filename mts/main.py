@@ -8,7 +8,7 @@ import itertools
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle5 as pickle
+import pickle as pickle
 import random
 import sys
 import time
@@ -41,10 +41,10 @@ ALGORITHMS_PRED_NEXT = (
   # algorithms.LNonMarker(False, 0.001),
 
   # algorithms.BlindOracle(True, 0.1),
-  #algorithms.BlindOracle(True, 0.01),
+  algorithms.BlindOracle(True, 0.01),
   # algorithms.BlindOracle(True, 0.001),
   # algorithms.BlindOracle(False, 0.1),
-  #algorithms.BlindOracle(False, 0.01),
+  algorithms.BlindOracle(False, 0.01),
   # algorithms.BlindOracle(False, 0.001),
 )
 
