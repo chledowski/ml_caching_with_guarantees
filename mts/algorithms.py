@@ -506,7 +506,7 @@ def Combine_rand(requests, k, pred, algs, epsilon=0.01, LAZY=True):
 
 
     if (new_probs[cur_alg] < probs[cur_alg]):
-      cur_alg =  1-cur_alg if (random.random() > (probs[cur_alg] - new_probs[cur_alg])/probs[cur_alg]) else cur_alg
+      cur_alg =  1-cur_alg if (random.random() < (probs[cur_alg] - new_probs[cur_alg])/probs[cur_alg]) else cur_alg
 
     probs = new_probs
     weights = new_weights
