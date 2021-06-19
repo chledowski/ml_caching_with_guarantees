@@ -50,12 +50,12 @@ ALGORITHMS_PRED_NEXT = (
 
 ALGORITHMS_PRED_CACHE = (
   algorithms.ACEPS_TrustDoubt,
-  # algorithms.RobustFTP(True, 0.1),
+  # # algorithms.RobustFTP(True, 0.1),
   algorithms.RobustFTP(True, 0.01),
-  # algorithms.RobustFTP(True, 0.001),
-  # algorithms.RobustFTP(False, 0.1),
+  # # algorithms.RobustFTP(True, 0.001),
+  # # algorithms.RobustFTP(False, 0.1),
   algorithms.RobustFTP(False, 0.01),
-  # algorithms.RobustFTP(False, 0.001),
+  # # algorithms.RobustFTP(False, 0.001),
 )
 
 @functools.lru_cache()
